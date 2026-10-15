@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>시험기간 뇌 과열 방지 시스템</title>
 <style>
 :root{--bg:#0b1020;--panel:#151d35;--ink:#f5f7ff;--muted:#aab5d2;--cyan:#63e6e2;--pink:#ff83b7;--yellow:#ffd166;--green:#8ce99a}
@@ -59,129 +60,162 @@ button.pinkbtn{background:var(--pink)}button.yellowbtn{background:var(--yellow)}
 footer{position:absolute;bottom:20px;right:28px;color:#73809f;font-size:.75rem}
 @media(max-width:650px){.slide{overflow-y:auto;justify-content:flex-start!important}.case-slide .answer{max-height:none}.case-slide .grid{gap:9px}.case-slide .card{padding:12px 14px}.deck{padding:12px 12px 74px}.slide{min-height:calc(100svh - 100px);padding:25px 22px;border-radius:20px}.grid{grid-template-columns:1fr}.hero-orbit{opacity:.18;right:-40px;top:8%;width:170px;height:170px}.controls{gap:6px}.controls button{padding:10px 12px}.counter{min-width:54px}}
 </style>
+<style>
+/* Original neon theme retained; interactive quiz extension */
+.quiz-slide{overflow-y:auto!important;justify-content:flex-start!important;gap:8px;padding-top:34px;padding-bottom:48px;scrollbar-color:#63e6e266 transparent}
+.quiz-slide h2{font-size:clamp(1.5rem,3vw,2.65rem);margin-bottom:8px}.quiz-slide p{font-size:.96rem;margin:5px 0}
+.quiz-slide .grid{margin-top:8px;gap:10px}.quiz-slide .card{padding:12px 15px}.quiz-slide .card p{font-size:.88rem}
+.quiz-slide .mathline{font-size:1rem;margin:7px 0;padding:9px 12px}.quiz-slide .machine{margin:5px 0}.quiz-slide .record{padding:7px 9px;font-size:.78rem}
+.logic-quiz{background:#101a32;border:1px solid #63e6e244;border-radius:17px;padding:14px;margin:10px 0}
+.quiz-label{font-size:.85rem;font-weight:900;color:var(--yellow);margin-bottom:10px}
+.quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.quiz-option{background:#ffffff0c;color:#f5f7ff;border:1px solid #ffffff29;text-align:left;font-size:.84rem;font-weight:600;padding:10px 12px}
+.quiz-option.selected{border-color:var(--cyan);background:#63e6e22a}.quiz-option:disabled{cursor:default;opacity:.85}
+.quiz-feedback{display:none;padding:10px;margin-top:9px;border-radius:10px;font-size:.9rem;background:#ffd16614;color:#ffe5a4}.quiz-feedback.show{display:block}
+.logic-flow{display:none;align-items:stretch;gap:5px;margin-top:10px}.logic-flow.show{display:flex}
+.flow-node{flex:1;min-width:0;background:#ffffff09;border:1px solid #ffffff1d;border-radius:10px;padding:8px;font-size:.75rem;line-height:1.45;color:#dfe7ff}
+.flow-node strong{display:block;color:var(--cyan);margin-bottom:4px}.flow-error{border-color:#ff83b766}.flow-error strong{color:var(--pink)}
+.flow-arrow{align-self:center;color:var(--yellow)}.quiz-explanation{display:none;font-size:.88rem;color:#caffd1;margin-top:9px}.quiz-explanation.show{display:block}
+.score-hud{color:var(--yellow);font-size:.8rem;font-weight:800;white-space:nowrap}.score-final{color:var(--yellow);font-weight:900;font-size:1.12rem;margin:14px 0}
+.quiz-slide footer{position:static;text-align:right;margin-top:6px}
+@media(max-width:700px){.quiz-options{grid-template-columns:1fr}.logic-flow.show{display:grid;grid-template-columns:1fr 1fr}.flow-arrow{display:none}.score-hud{font-size:.7rem}.quiz-slide{padding-bottom:40px}}
+</style><style>
+/* Navigation-safe layout: reserve a dedicated footer bar, and scroll slides internally. */
+:root{--nav-clearance:88px}
+.deck{height:calc(100svh - var(--nav-clearance));padding:18px 24px;min-height:0}
+.slide,.slide.active{height:100%;min-height:0;max-height:100%;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#63e6e266 transparent;scrollbar-width:thin}
+.slide.active{justify-content:flex-start}
+.slide{padding-bottom:52px}
+.slide footer{position:static;margin-top:24px;text-align:right;flex-shrink:0}
+.controls{height:var(--nav-clearance);padding:12px 16px;background:#070b17f5;border-top:1px solid #ffffff20;z-index:10}
+.quiz-slide{padding-bottom:52px}
+.case-slide .answer{max-height:none;overflow:visible}
+@media(max-width:650px){:root{--nav-clearance:80px}.deck{padding:10px 12px}.slide,.slide.active{min-height:0;height:100%;padding:24px 20px 48px}.controls{padding:10px 8px;gap:6px}}
+@media(max-height:540px){:root{--nav-clearance:70px}.deck{padding:6px 12px}.slide,.slide.active{padding-top:16px;padding-bottom:34px}}
+</style>
 </head>
 <body>
 <div class="progress" id="progress"></div>
-<main class="deck" aria-live="polite">
+<main aria-live="polite" class="deck">
 <section class="slide active">
-  <div class="hero-orbit"></div>
-  <div class="kicker">EXAM SEASON · BRAIN OVERHEAT PREVENTION</div>
-  <h1>쓸데없는 질문이<br><span class="accent">무한 증식</span>할 때</h1>
-  <p>친구의 뇌가 철학자와 말장난 연구소 사이에서 길을 잃었다면, 필요한 건 정답보다 <strong>질문을 분류하는 시스템</strong>이다.</p>
-  <div style="margin-top:22px"><span class="tag">🧠 생각은 자유</span><span class="tag">⏱️ 시험은 유한</span><span class="tag">🛑 지금은 공부 시간</span></div>
-  <footer>FIELD GUIDE 01</footer>
+<div class="hero-orbit"></div>
+<div class="kicker">EXAM SEASON · BRAIN OVERHEAT PREVENTION</div>
+<h1>쓸데없는 질문이<br/><span class="accent">무한 증식</span>할 때</h1>
+<p>친구의 뇌가 철학자와 말장난 연구소 사이에서 길을 잃었다면, 필요한 건 정답보다 <strong>질문을 분류하는 시스템</strong>이다.</p>
+<div style="margin-top:22px"><span class="tag">🧠 생각은 자유</span><span class="tag">⏱️ 시험은 유한</span><span class="tag">🛑 지금은 공부 시간</span></div>
+<footer>FIELD GUIDE 01</footer>
+</section>
+<section class="quiz-slide slide">
+<div class="kicker">CASE 01 · 기록의 자기복제 사건</div>
+<h2>세계 최초 기록을 2개 가진 사람은<br/><span class="pink">기록이 무한히 늘어날까?</span></h2>
+<p>가정: 누군가가 세계 최초 기록 2개를 보유한다. 그 사실 자체가 새 기록이 되고, 그 새 기록을 보유한 사실이 또 새 기록이 된다면…?</p>
+<div class="mathline" id="recordEquation">기록 2개 → “기록 2개를 가진 최초의 사람”</div>
+<div class="machine" id="recordMachine"><span class="record">기존 기록 × 2</span></div>
+<div class="logic-quiz" data-case="0" data-correct="b"><div class="quiz-label">⚖️ 먼저 판정해 보자 · 정답 +20점</div><div class="quiz-options"><button class="quiz-option" onclick="judge(0,'a')" type="button">논리적으로 타당하다</button><button class="quiz-option" onclick="judge(0,'b')" type="button">전제는 일부 맞지만 결론이 틀렸다</button><button class="quiz-option" onclick="judge(0,'c')" type="button">핵심 전제 자체가 거짓이다</button><button class="quiz-option" onclick="judge(0,'d')" type="button">말장난 또는 단어 의미의 혼동이다</button></div><div aria-live="polite" class="quiz-feedback" id="feedback0"></div><div class="logic-flow"><div class="flow-node"><strong>전제</strong><span>기록 2개 보유</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>추론</strong><span>그 사실을 새 기록으로 정의</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>결론</strong><span>공식 기록이 무한 증식</span></div><span class="flow-arrow">→</span><div class="flow-node flow-error"><strong>오류 지점</strong><span>기록의 정의·검증 기준이 빠진 추론</span></div></div><div class="quiz-explanation" id="quizExplain0">새 문장을 만드는 것과 공식 기록으로 인정되는 것은 다르다.</div></div><div class="choice-row"><button onclick="addRecord()">기록 하나 더 만들기</button><button class="secondary" onclick="resetRecords()">초기화</button></div>
+<div class="verdict"><strong>논리 체크:</strong> 어떤 사실을 새 문장으로 표현할 수 있다고 해서, 자동으로 공식적인 세계 기록이 추가되지는 않는다. 기록은 정의·검증·등록 기준이 있어야 한다.</div>
+<footer>CASE FILE 01</footer>
+</section>
+<section class="quiz-slide slide">
+<div class="kicker">CASE 02 · 한자에 갇힌 관광객</div>
+<h2>시각장애인이 관광을 가면<br/><span class="yellow">‘빛 광(光)’ 자격이 있을까?</span></h2>
+<p>말의 생김새를 따지는 질문과, 실제 단어가 쓰이는 방식을 따지는 질문은 서로 다르다.</p>
+<div class="grid">
+<div class="card"><h3>🔎 글자 분해 모드</h3><p>‘관광(觀光)’의 한자 뜻을 보면 빛 광(光)이 들어간다. 그래서 말장난 소재로는 성립한다.</p></div>
+<div class="card"><h3>📚 실제 의미 모드</h3><p>현대 한국어의 ‘관광’은 명소나 경관 등을 둘러보며 여행하는 활동을 뜻한다. 시각으로만 경험해야 한다는 조건은 없다.</p></div>
+</div>
+<div class="logic-quiz" data-case="1" data-correct="d"><div class="quiz-label">⚖️ 먼저 판정해 보자 · 정답 +20점</div><div class="quiz-options"><button class="quiz-option" onclick="judge(1,'a')" type="button">논리적으로 타당하다</button><button class="quiz-option" onclick="judge(1,'b')" type="button">전제는 일부 맞지만 결론이 틀렸다</button><button class="quiz-option" onclick="judge(1,'c')" type="button">핵심 전제 자체가 거짓이다</button><button class="quiz-option" onclick="judge(1,'d')" type="button">말장난 또는 단어 의미의 혼동이다</button></div><div aria-live="polite" class="quiz-feedback" id="feedback1"></div><div class="logic-flow"><div class="flow-node"><strong>전제</strong><span>관광(觀光)에 光이 있다</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>추론</strong><span>시각 경험만 관광이라고 해석</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>결론</strong><span>시각장애인은 관광할 수 없다</span></div><span class="flow-arrow">→</span><div class="flow-node flow-error"><strong>오류 지점</strong><span>한자 구성과 실제 단어 의미가 다름</span></div></div><div class="quiz-explanation" id="quizExplain1">관광의 한자 표기를 현대 관광의 필수 시각 조건으로 해석한 말장난이다.</div></div><div class="choice-row"><button class="yellowbtn" onclick="reveal('tourAnswer')">판정 보기</button></div>
+<div class="answer" id="tourAnswer">판정: <strong>말장난은 가능, 논리적 반박은 아님.</strong> 관광은 시각만으로 하는 활동이 아니며, 촉각·청각·후각·해설 등으로도 경험할 수 있다. 한자의 구성만으로 현대 단어의 자격 조건을 정하면 안 된다.</div>
+<footer>CASE FILE 02</footer>
+</section>
+<section class="quiz-slide case-slide slide">
+<div class="kicker">CASE 03 · 인류 최초의 발차기</div>
+<h2>태아는 모두 태동을 한다면<br/><span class="pink">인류는 모두 임산부의 배를 찼을까?</span></h2>
+<p>태아의 움직임을 경험했다는 전제에서, 현재 살아 있는 모든 사람에게 같은 경험이 있다고 결론 내릴 수 있을까?</p>
+<div class="grid reasoning-grid">
+<div class="card"><h3>① 전제</h3><p>태아는 움직인다.<br/>모든 사람은 태아 시기를 거쳤다.</p></div>
+<div class="card"><h3>② 주장하는 결론</h3><p>따라서 전 세계 모든 사람은 임산부의 배를 찬 적이 있다.</p></div>
+</div>
+<div class="logic-quiz" data-case="2" data-correct="b"><div class="quiz-label">⚖️ 먼저 판정해 보자 · 정답 +20점</div><div class="quiz-options"><button class="quiz-option" onclick="judge(2,'a')" type="button">논리적으로 타당하다</button><button class="quiz-option" onclick="judge(2,'b')" type="button">전제는 일부 맞지만 결론이 틀렸다</button><button class="quiz-option" onclick="judge(2,'c')" type="button">핵심 전제 자체가 거짓이다</button><button class="quiz-option" onclick="judge(2,'d')" type="button">말장난 또는 단어 의미의 혼동이다</button></div><div aria-live="polite" class="quiz-feedback" id="feedback2"></div><div class="logic-flow"><div class="flow-node"><strong>전제</strong><span>태아는 움직일 수 있다</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>추론</strong><span>모든 움직임을 발차기로 취급</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>결론</strong><span>모든 인간이 배를 찼다</span></div><span class="flow-arrow">→</span><div class="flow-node flow-error"><strong>오류 지점</strong><span>태동과 발차기의 의미가 다름</span></div></div><div class="quiz-explanation" id="quizExplain2">태동은 일반적인 태아의 움직임이지만 모든 태아가 배를 발로 찼다고 단정할 수 없다.</div></div><div class="choice-row"><button aria-controls="caseAnswer3" aria-expanded="false" class="yellowbtn" onclick="reveal('caseAnswer3')">논리 판정 보기</button></div>
+<div class="answer" id="caseAnswer3"><div><strong>판정: 보편화 오류.</strong> 일반적으로 태아는 움직이지만, 그것이 모든 사람이 임산부의 배를 실제로 ‘찼다’는 증거는 아니다. ‘태동’과 ‘배를 차다’를 동일시한 표현상의 비약이다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 태동은 태아의 움직임을 말하지만 모든 움직임이 복벽에 전달되는 강한 ‘발차기’는 아니다. 임신 시기·태아 상태에 따라 움직임의 양상과 감지 여부도 다르다. 또한 임신한 사람 모두를 현재의 의미로 ‘임산부’라고 부르는 것은 상황에 따라 적절하지만, 모든 사람의 출생 경로가 동일하다고 단정할 수는 없다.</div></div>
+<footer>CASE FILE 03</footer>
+</section>
+<section class="quiz-slide case-slide slide">
+<div class="kicker">CASE 04 · 비밀을 아는 기계</div>
+<h2>비밀번호가 비밀이라면<br/><span class="yellow">ATM은 정답을 어떻게 알까?</span></h2>
+<p>비밀번호를 비밀로 유지하는 것과 입력값이 맞는지 검증하는 것은 양립할 수 있을까?</p>
+<div class="grid reasoning-grid">
+<div class="card"><h3>① 전제</h3><p>카드 비밀번호는 타인에게 알려져서는 안 된다.<br/>ATM 거래 과정에서는 비밀번호의 유효성을 확인한다.</p></div>
+<div class="card"><h3>② 주장하는 결론</h3><p>그러니 ATM이 비밀번호를 알고 있어 비밀이 아니다.</p></div>
+</div>
+<div class="logic-quiz" data-case="3" data-correct="c"><div class="quiz-label">⚖️ 먼저 판정해 보자 · 정답 +20점</div><div class="quiz-options"><button class="quiz-option" onclick="judge(3,'a')" type="button">논리적으로 타당하다</button><button class="quiz-option" onclick="judge(3,'b')" type="button">전제는 일부 맞지만 결론이 틀렸다</button><button class="quiz-option" onclick="judge(3,'c')" type="button">핵심 전제 자체가 거짓이다</button><button class="quiz-option" onclick="judge(3,'d')" type="button">말장난 또는 단어 의미의 혼동이다</button></div><div aria-live="polite" class="quiz-feedback" id="feedback3"></div><div class="logic-flow"><div class="flow-node"><strong>전제</strong><span>비밀번호는 비밀이다</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>추론</strong><span>ATM에서 입력값을 검증한다</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>결론</strong><span>ATM이 비밀번호를 공개적으로 안다</span></div><span class="flow-arrow">→</span><div class="flow-node flow-error"><strong>오류 지점</strong><span>검증과 비밀 공개를 혼동</span></div></div><div class="quiz-explanation" id="quizExplain3">검증 시스템은 비밀번호를 공개하거나 ATM에 평문으로 저장하지 않고도 입력값을 확인할 수 있다.</div></div><div class="choice-row"><button aria-controls="caseAnswer4" aria-expanded="false" class="yellowbtn" onclick="reveal('caseAnswer4')">논리 판정 보기</button></div>
+<div class="answer" id="caseAnswer4"><div><strong>판정: 비밀 유지와 검증의 혼동.</strong> 정답 여부를 확인할 수 있다는 사실이 정답을 공개하거나 평문으로 저장한다는 뜻은 아니다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> ATM이나 은행 시스템은 비밀번호를 화면에 표시하거나 직원에게 공개하지 않고도 암호화된 통신과 보안 장치(HSM 등)를 이용해 검증할 수 있다. 카드 종류와 거래 방식에 따라 발급사 시스템 또는 칩에서 확인할 수 있으며, 평문 비밀번호를 ATM이 보관할 필요는 없다.</div></div>
+<footer>CASE FILE 04</footer>
+</section>
+<section class="quiz-slide case-slide slide">
+<div class="kicker">CASE 05 · 존재하지 않는 감옥</div>
+<h2>집이 없는 사람에게<br/><span class="pink">자택구금은 자유를 뜻할까?</span></h2>
+<p>거주지가 없는 사람에게 자택구금 명령이 내려지면, 구금이 무의미해지는 걸까?</p>
+<div class="grid reasoning-grid">
+<div class="card"><h3>① 전제</h3><p>자택구금은 지정된 거주 장소에서의 이동을 제한한다.<br/>대상자에게 일정한 주거지가 없다.</p></div>
+<div class="card"><h3>② 주장하는 결론</h3><p>그러므로 가둘 집이 없으니 자유롭게 다닐 수 있다.</p></div>
+</div>
+<div class="logic-quiz" data-case="4" data-correct="b"><div class="quiz-label">⚖️ 먼저 판정해 보자 · 정답 +20점</div><div class="quiz-options"><button class="quiz-option" onclick="judge(4,'a')" type="button">논리적으로 타당하다</button><button class="quiz-option" onclick="judge(4,'b')" type="button">전제는 일부 맞지만 결론이 틀렸다</button><button class="quiz-option" onclick="judge(4,'c')" type="button">핵심 전제 자체가 거짓이다</button><button class="quiz-option" onclick="judge(4,'d')" type="button">말장난 또는 단어 의미의 혼동이다</button></div><div aria-live="polite" class="quiz-feedback" id="feedback4"></div><div class="logic-flow"><div class="flow-node"><strong>전제</strong><span>자택구금은 지정 장소에 머무는 조치</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>추론</strong><span>주거지가 없는 사람을 가정</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>결론</strong><span>그러면 마음대로 이동할 수 있다</span></div><span class="flow-arrow">→</span><div class="flow-node flow-error"><strong>오류 지점</strong><span>법적 집행 조건과 자유를 혼동</span></div></div><div class="quiz-explanation" id="quizExplain4">주거지가 없다고 법적 이동 제한이 자유로 바뀌지 않는다. 관할 제도와 대체 조치에 따라 달라진다.</div></div><div class="choice-row"><button aria-controls="caseAnswer5" aria-expanded="false" class="yellowbtn" onclick="reveal('caseAnswer5')">논리 판정 보기</button></div>
+<div class="answer" id="caseAnswer5"><div><strong>판정: 법적 전제의 오류.</strong> 집이 없다는 사실만으로 이동 제한이 자동 소멸하거나 자유가 허용되지는 않는다. 관할 법률과 실제 명령 조건을 확인해야 한다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 자택구금은 국가와 제도에 따라 요건이 다르며, 주거지 지정과 감독 가능성이 핵심이다. 적절한 장소가 없으면 명령을 그대로 집행할 수 없거나 대체 장소·다른 감독 조건 또는 다른 처분을 검토해야 한다. 한국에서도 ‘경범죄 → 판사의 자택구금 판결’이 일반적인 법적 절차라고 볼 수 없다.</div></div>
+<footer>CASE FILE 05</footer>
+</section>
+<section class="quiz-slide case-slide slide">
+<div class="kicker">CASE 06 · 모기 친자확인 소송</div>
+<h2>모기가 인간의 피를 빨아 번식한다면<br/><span class="yellow">인간은 모기의 부모일까?</span></h2>
+<p>흡혈과 번식의 관계를 유전적 부모 관계로 연결할 수 있을까?</p>
+<div class="grid reasoning-grid">
+<div class="card"><h3>① 전제</h3><p>일부 암컷 모기는 알 발달에 필요한 영양분을 얻기 위해 피를 빤다.<br/>인간 혈액에는 인간 DNA가 존재할 수 있다.</p></div>
+<div class="card"><h3>② 주장하는 결론</h3><p>그러니 피를 제공한 인간은 태어난 모기의 유전적 부모다.</p></div>
+</div>
+<div class="logic-quiz" data-case="5" data-correct="b"><div class="quiz-label">⚖️ 먼저 판정해 보자 · 정답 +20점</div><div class="quiz-options"><button class="quiz-option" onclick="judge(5,'a')" type="button">논리적으로 타당하다</button><button class="quiz-option" onclick="judge(5,'b')" type="button">전제는 일부 맞지만 결론이 틀렸다</button><button class="quiz-option" onclick="judge(5,'c')" type="button">핵심 전제 자체가 거짓이다</button><button class="quiz-option" onclick="judge(5,'d')" type="button">말장난 또는 단어 의미의 혼동이다</button></div><div aria-live="polite" class="quiz-feedback" id="feedback5"></div><div class="logic-flow"><div class="flow-node"><strong>전제</strong><span>일부 암컷 모기는 피를 흡혈한다</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>추론</strong><span>영양 공급을 유전 전달로 간주</span></div><span class="flow-arrow">→</span><div class="flow-node"><strong>결론</strong><span>인간이 모기의 부모다</span></div><span class="flow-arrow">→</span><div class="flow-node flow-error"><strong>오류 지점</strong><span>영양 공급과 유전적 친자 관계 혼동</span></div></div><div class="quiz-explanation" id="quizExplain5">혈액의 영양분이 알 발달에 쓰이는 것과 유전적 부모가 되는 것은 다르다.</div></div><div class="choice-row"><button aria-controls="caseAnswer6" aria-expanded="false" class="yellowbtn" onclick="reveal('caseAnswer6')">논리 판정 보기</button></div>
+<div class="answer" id="caseAnswer6"><div><strong>판정: 영양 공급과 유전적 친자 관계의 혼동.</strong> 인간은 일부 모기에게 먹이를 제공할 수 있지만 모기의 유전적 부모가 되지는 않는다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 모기의 유전적 부모는 수컷·암컷 모기다. 혈액은 일부 모기의 난자 발달에 쓰이는 영양 공급원이지 인간 DNA가 모기 자손의 유전체로 들어가는 생식 과정이 아니다. 사람의 성숙한 적혈구에는 핵이 없지만 백혈구 등에는 DNA가 있을 수 있다. 또한 모든 모기가 인간 피를 빠는 것도 아니다.</div></div>
+<footer>CASE FILE 06</footer>
 </section>
 <section class="slide">
-  <div class="kicker">CASE 01 · RECURSIVE RECORDS</div>
-  <h2>세계 최초 기록을 2개 가진 사람은<br><span class="pink">기록이 무한히 늘어날까?</span></h2>
-  <p>가정: 누군가가 세계 최초 기록 2개를 보유한다. 그 사실 자체가 새 기록이 되고, 그 새 기록을 보유한 사실이 또 새 기록이 된다면…?</p>
-  <div class="mathline" id="recordEquation">기록 2개 → “기록 2개를 가진 최초의 사람”</div>
-  <div class="machine" id="recordMachine"><span class="record">기존 기록 × 2</span></div>
-  <div class="choice-row"><button onclick="addRecord()">기록 하나 더 만들기</button><button class="secondary" onclick="resetRecords()">초기화</button></div>
-  <div class="verdict"><strong>논리 체크:</strong> 어떤 사실을 새 문장으로 표현할 수 있다고 해서, 자동으로 공식적인 세계 기록이 추가되지는 않는다. 기록은 정의·검증·등록 기준이 있어야 한다.</div>
-  <footer>CASE FILE 01</footer>
+<div class="kicker">THE QUESTION FILTER</div>
+<h2>질문이 떠오르면<br/><span class="accent">3초 안에 분류한다</span></h2>
+<p>질문을 억지로 없애지 말고, 지금 처리할 질문인지 나중에 처리할 질문인지 결정하자.</p>
+<div class="grid">
+<div class="card"><h3>🟢 지금 해결</h3><p>과제 이해, 시험 범위, 공부 중 막힌 개념처럼 현재 목표에 직접 연결됨.</p></div>
+<div class="card"><h3>🟡 메모 후 보류</h3><p>재밌지만 시험과 직접 관련 없음. 한 줄만 적고 공부가 끝난 뒤 보기.</p></div>
+<div class="card"><h3>🔴 무한 루프 차단</h3><p>정의만 바꾸며 같은 질문이 반복되거나, 답이 나와도 새 가정을 계속 추가함.</p></div>
+<div class="card"><h3>⏳ 현실 체크</h3><p>“이 질문을 10분 더 생각하면 시험 점수가 오를까?” 아니면 일단 보류.</p></div>
+</div>
+<footer>PROTOCOL 03</footer>
 </section>
 <section class="slide">
-  <div class="kicker">CASE 02 · WORDPLAY VS MEANING</div>
-  <h2>시각장애인이 관광을 가면<br><span class="yellow">‘빛 광(光)’ 자격이 있을까?</span></h2>
-  <p>말의 생김새를 따지는 질문과, 실제 단어가 쓰이는 방식을 따지는 질문은 서로 다르다.</p>
-  <div class="grid">
-    <div class="card"><h3>🔎 글자 분해 모드</h3><p>‘관광(觀光)’의 한자 뜻을 보면 빛 광(光)이 들어간다. 그래서 말장난 소재로는 성립한다.</p></div>
-    <div class="card"><h3>📚 실제 의미 모드</h3><p>현대 한국어의 ‘관광’은 명소나 경관 등을 둘러보며 여행하는 활동을 뜻한다. 시각으로만 경험해야 한다는 조건은 없다.</p></div>
-  </div>
-  <div class="choice-row"><button class="yellowbtn" onclick="reveal('tourAnswer')">판정 보기</button></div>
-  <div class="answer" id="tourAnswer">판정: <strong>말장난은 가능, 논리적 반박은 아님.</strong> 관광은 시각만으로 하는 활동이 아니며, 촉각·청각·후각·해설 등으로도 경험할 수 있다. 한자의 구성만으로 현대 단어의 자격 조건을 정하면 안 된다.</div>
-  <footer>CASE FILE 02</footer>
-</section>
-<section class="slide case-slide">
-  <div class="kicker">CASE 03 · FETAL MOVEMENT</div>
-  <h2>태아는 모두 태동을 한다면<br><span class="pink">인류는 모두 임산부의 배를 찼을까?</span></h2>
-  <p>태아의 움직임을 경험했다는 전제에서, 현재 살아 있는 모든 사람에게 같은 경험이 있다고 결론 내릴 수 있을까?</p>
-  <div class="grid reasoning-grid">
-    <div class="card"><h3>① 전제</h3><p>태아는 움직인다.<br>모든 사람은 태아 시기를 거쳤다.</p></div>
-    <div class="card"><h3>② 주장하는 결론</h3><p>따라서 전 세계 모든 사람은 임산부의 배를 찬 적이 있다.</p></div>
-  </div>
-  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer3')" aria-expanded="false" aria-controls="caseAnswer3">논리 판정 보기</button></div>
-  <div class="answer" id="caseAnswer3"><div><strong>판정: 보편화 오류.</strong> 일반적으로 태아는 움직이지만, 그것이 모든 사람이 임산부의 배를 실제로 ‘찼다’는 증거는 아니다. ‘태동’과 ‘배를 차다’를 동일시한 표현상의 비약이다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 태동은 태아의 움직임을 말하지만 모든 움직임이 복벽에 전달되는 강한 ‘발차기’는 아니다. 임신 시기·태아 상태에 따라 움직임의 양상과 감지 여부도 다르다. 또한 임신한 사람 모두를 현재의 의미로 ‘임산부’라고 부르는 것은 상황에 따라 적절하지만, 모든 사람의 출생 경로가 동일하다고 단정할 수는 없다.</div></div>
-  <footer>CASE FILE 03</footer>
-</section>
-<section class="slide case-slide">
-  <div class="kicker">CASE 04 · PASSWORD VERIFICATION</div>
-  <h2>비밀번호가 비밀이라면<br><span class="yellow">ATM은 정답을 어떻게 알까?</span></h2>
-  <p>비밀번호를 비밀로 유지하는 것과 입력값이 맞는지 검증하는 것은 양립할 수 있을까?</p>
-  <div class="grid reasoning-grid">
-    <div class="card"><h3>① 전제</h3><p>카드 비밀번호는 타인에게 알려져서는 안 된다.<br>ATM 거래 과정에서는 비밀번호의 유효성을 확인한다.</p></div>
-    <div class="card"><h3>② 주장하는 결론</h3><p>그러니 ATM이 비밀번호를 알고 있어 비밀이 아니다.</p></div>
-  </div>
-  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer4')" aria-expanded="false" aria-controls="caseAnswer4">논리 판정 보기</button></div>
-  <div class="answer" id="caseAnswer4"><div><strong>판정: 비밀 유지와 검증의 혼동.</strong> 정답 여부를 확인할 수 있다는 사실이 정답을 공개하거나 평문으로 저장한다는 뜻은 아니다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> ATM이나 은행 시스템은 비밀번호를 화면에 표시하거나 직원에게 공개하지 않고도 암호화된 통신과 보안 장치(HSM 등)를 이용해 검증할 수 있다. 카드 종류와 거래 방식에 따라 발급사 시스템 또는 칩에서 확인할 수 있으며, 평문 비밀번호를 ATM이 보관할 필요는 없다.</div></div>
-  <footer>CASE FILE 04</footer>
-</section>
-<section class="slide case-slide">
-  <div class="kicker">CASE 05 · HOUSE ARREST</div>
-  <h2>집이 없는 사람에게<br><span class="pink">자택구금은 자유를 뜻할까?</span></h2>
-  <p>거주지가 없는 사람에게 자택구금 명령이 내려지면, 구금이 무의미해지는 걸까?</p>
-  <div class="grid reasoning-grid">
-    <div class="card"><h3>① 전제</h3><p>자택구금은 지정된 거주 장소에서의 이동을 제한한다.<br>대상자에게 일정한 주거지가 없다.</p></div>
-    <div class="card"><h3>② 주장하는 결론</h3><p>그러므로 가둘 집이 없으니 자유롭게 다닐 수 있다.</p></div>
-  </div>
-  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer5')" aria-expanded="false" aria-controls="caseAnswer5">논리 판정 보기</button></div>
-  <div class="answer" id="caseAnswer5"><div><strong>판정: 법적 전제의 오류.</strong> 집이 없다는 사실만으로 이동 제한이 자동 소멸하거나 자유가 허용되지는 않는다. 관할 법률과 실제 명령 조건을 확인해야 한다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 자택구금은 국가와 제도에 따라 요건이 다르며, 주거지 지정과 감독 가능성이 핵심이다. 적절한 장소가 없으면 명령을 그대로 집행할 수 없거나 대체 장소·다른 감독 조건 또는 다른 처분을 검토해야 한다. 한국에서도 ‘경범죄 → 판사의 자택구금 판결’이 일반적인 법적 절차라고 볼 수 없다.</div></div>
-  <footer>CASE FILE 05</footer>
-</section>
-<section class="slide case-slide">
-  <div class="kicker">CASE 06 · MOSQUITO GENETICS</div>
-  <h2>모기가 인간의 피를 빨아 번식한다면<br><span class="yellow">인간은 모기의 부모일까?</span></h2>
-  <p>흡혈과 번식의 관계를 유전적 부모 관계로 연결할 수 있을까?</p>
-  <div class="grid reasoning-grid">
-    <div class="card"><h3>① 전제</h3><p>일부 암컷 모기는 알 발달에 필요한 영양분을 얻기 위해 피를 빤다.<br>인간 혈액에는 인간 DNA가 존재할 수 있다.</p></div>
-    <div class="card"><h3>② 주장하는 결론</h3><p>그러니 피를 제공한 인간은 태어난 모기의 유전적 부모다.</p></div>
-  </div>
-  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer6')" aria-expanded="false" aria-controls="caseAnswer6">논리 판정 보기</button></div>
-  <div class="answer" id="caseAnswer6"><div><strong>판정: 영양 공급과 유전적 친자 관계의 혼동.</strong> 인간은 일부 모기에게 먹이를 제공할 수 있지만 모기의 유전적 부모가 되지는 않는다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 모기의 유전적 부모는 수컷·암컷 모기다. 혈액은 일부 모기의 난자 발달에 쓰이는 영양 공급원이지 인간 DNA가 모기 자손의 유전체로 들어가는 생식 과정이 아니다. 사람의 성숙한 적혈구에는 핵이 없지만 백혈구 등에는 DNA가 있을 수 있다. 또한 모든 모기가 인간 피를 빠는 것도 아니다.</div></div>
-  <footer>CASE FILE 06</footer>
+<div class="kicker">INTERACTIVE DECISION</div>
+<h2>방금 떠오른 질문은<br/>어느 칸에 넣을까?</h2>
+<p>질문을 입력하고 분류 버튼을 눌러라. 이 도구는 생각을 검열하는 게 아니라 시간을 지켜주는 장치다.</p>
+<input id="userQuestion" placeholder="예: 고양이는 자기 이름을 성으로 인식할까?" style="width:100%;max-width:780px;padding:15px 17px;border-radius:12px;border:1px solid #ffffff35;background:#080e1d;color:white;font:inherit;margin-top:8px"/>
+<div class="choice-row">
+<button onclick="classify('now')">시험과 직접 관련 있음</button>
+<button class="yellowbtn" onclick="classify('later')">재밌지만 지금은 아님</button>
+<button class="pinkbtn" onclick="classify('loop')">생각이 꼬리에 꼬리를 뭄</button>
+</div>
+<div class="answer" id="classification"></div>
+<footer>PROTOCOL 04</footer>
 </section>
 <section class="slide">
-  <div class="kicker">THE QUESTION FILTER</div>
-  <h2>질문이 떠오르면<br><span class="accent">3초 안에 분류한다</span></h2>
-  <p>질문을 억지로 없애지 말고, 지금 처리할 질문인지 나중에 처리할 질문인지 결정하자.</p>
-  <div class="grid">
-    <div class="card"><h3>🟢 지금 해결</h3><p>과제 이해, 시험 범위, 공부 중 막힌 개념처럼 현재 목표에 직접 연결됨.</p></div>
-    <div class="card"><h3>🟡 메모 후 보류</h3><p>재밌지만 시험과 직접 관련 없음. 한 줄만 적고 공부가 끝난 뒤 보기.</p></div>
-    <div class="card"><h3>🔴 무한 루프 차단</h3><p>정의만 바꾸며 같은 질문이 반복되거나, 답이 나와도 새 가정을 계속 추가함.</p></div>
-    <div class="card"><h3>⏳ 현실 체크</h3><p>“이 질문을 10분 더 생각하면 시험 점수가 오를까?” 아니면 일단 보류.</p></div>
-  </div>
-  <footer>PROTOCOL 03</footer>
-</section>
-<section class="slide">
-  <div class="kicker">INTERACTIVE DECISION</div>
-  <h2>방금 떠오른 질문은<br>어느 칸에 넣을까?</h2>
-  <p>질문을 입력하고 분류 버튼을 눌러라. 이 도구는 생각을 검열하는 게 아니라 시간을 지켜주는 장치다.</p>
-  <input id="userQuestion" placeholder="예: 고양이는 자기 이름을 성으로 인식할까?" style="width:100%;max-width:780px;padding:15px 17px;border-radius:12px;border:1px solid #ffffff35;background:#080e1d;color:white;font:inherit;margin-top:8px">
-  <div class="choice-row">
-    <button onclick="classify('now')">시험과 직접 관련 있음</button>
-    <button class="yellowbtn" onclick="classify('later')">재밌지만 지금은 아님</button>
-    <button class="pinkbtn" onclick="classify('loop')">생각이 꼬리에 꼬리를 뭄</button>
-  </div>
-  <div class="answer" id="classification"></div>
-  <footer>PROTOCOL 04</footer>
-</section>
-<section class="slide">
-  <div class="kicker">EMERGENCY RESET</div>
-  <h2>뇌가 계속 새 탭을 열면<br><span class="pink">25분 동안 탭 잠금</span></h2>
-  <p>떠오른 질문은 메모장에 맡기고, 지금 할 수 있는 가장 작은 공부 행동 하나만 시작한다.</p>
-  <div class="rule"><div class="num">1</div><div><strong>질문 보관</strong><br><span class="small">궁금증을 한 문장으로 적고 닫기.</span></div></div>
-  <div class="rule"><div class="num">2</div><div><strong>작게 시작</strong><br><span class="small">문제 한 개, 개념 한 단락, 암기 카드 다섯 장 중 하나.</span></div></div>
-  <div class="rule"><div class="num">3</div><div><strong>끝나고 다시 보기</strong><br><span class="small">공부 시간 뒤에도 궁금하면 그때 마음껏 파고들기.</span></div></div>
-  <div class="timerbox"><div class="clock" id="clock">25:00</div><div><button onclick="startTimer()">공부 타이머 시작</button> <button class="secondary" onclick="pauseTimer()">일시정지</button><button class="secondary" onclick="resetTimer()">초기화</button></div></div>
-  <div class="small" id="timerStatus" style="margin-top:10px">아직 시작 전. 물 한 모금 마시고 시작!</div>
-  <footer>MISSION COMPLETE</footer>
+<div class="kicker">EMERGENCY RESET</div>
+<h2>뇌가 계속 새 탭을 열면<br/><span class="pink">25분 동안 탭 잠금</span></h2>
+<p>떠오른 질문은 메모장에 맡기고, 지금 할 수 있는 가장 작은 공부 행동 하나만 시작한다.</p>
+<div class="rule"><div class="num">1</div><div><strong>질문 보관</strong><br/><span class="small">궁금증을 한 문장으로 적고 닫기.</span></div></div>
+<div class="rule"><div class="num">2</div><div><strong>작게 시작</strong><br/><span class="small">문제 한 개, 개념 한 단락, 암기 카드 다섯 장 중 하나.</span></div></div>
+<div class="rule"><div class="num">3</div><div><strong>끝나고 다시 보기</strong><br/><span class="small">공부 시간 뒤에도 궁금하면 그때 마음껏 파고들기.</span></div></div>
+<div aria-live="polite" class="score-final" id="finalScore">🧠 논리력 0 / 120점 · 집중력은 지금부터 측정합니다.</div><button class="secondary" onclick="resetQuiz()" type="button">퀴즈 점수 초기화</button><div class="timerbox"><div class="clock" id="clock">25:00</div><div><button onclick="startTimer()">공부 타이머 시작</button> <button class="secondary" onclick="pauseTimer()">일시정지</button><button class="secondary" onclick="resetTimer()">초기화</button></div></div>
+<div class="small" id="timerStatus" style="margin-top:10px">아직 시작 전. 물 한 모금 마시고 시작!</div>
+<footer>MISSION COMPLETE</footer>
 </section>
 </main>
-<nav class="controls" aria-label="슬라이드 조작">
-  <button class="secondary" onclick="prevSlide()" aria-label="이전 슬라이드">← 이전</button>
-  <span class="counter" id="counter">01 / 10</span>
-  <button onclick="nextSlide()" aria-label="다음 슬라이드">다음 →</button>
+<nav aria-label="슬라이드 조작" class="controls">
+<span class="score-hud" id="scoreHud">🧠 0 / 120</span><button aria-label="이전 슬라이드" class="secondary" onclick="prevSlide()">← 이전</button>
+<span class="counter" id="counter">01 / 10</span>
+<button aria-label="다음 슬라이드" onclick="nextSlide()">다음 →</button>
 </nav>
 <script>
 const slides=[...document.querySelectorAll('.slide')];let current=0;
@@ -201,5 +235,12 @@ function pauseTimer(){if(timerInterval){clearInterval(timerInterval);timerInterv
 function resetTimer(){pauseTimer();timerSeconds=1500;paintTimer();document.getElementById('timerStatus').textContent='타이머 초기화 완료.'}
 showSlide(0);
 </script>
-</body>
+<script>
+const quizAnswers=Array(6).fill(null);
+const quizCorrect=['b','d','b','c','b','b'];
+function updateScore(){const pts=quizAnswers.reduce((n,v,i)=>n+(v===quizCorrect[i]?20:0),0);document.getElementById('scoreHud').textContent='🧠 '+pts+' / 120';document.getElementById('finalScore').textContent='🧠 논리력 '+pts+' / 120점 · '+(quizAnswers.every(v=>v!==null)?'논리 분석 완료! 이제 시험 공부를 시작할 시간.':'아직 '+quizAnswers.filter(v=>v===null).length+'문제가 남았습니다.');}
+function judge(i,answer){if(quizAnswers[i]!==null)return;quizAnswers[i]=answer;const root=document.querySelector('.logic-quiz[data-case="'+i+'"]');const correct=answer===quizCorrect[i];root.querySelectorAll('.quiz-option').forEach((btn,j)=>{btn.disabled=true;if(['a','b','c','d'][j]===answer)btn.classList.add('selected')});const fb=document.getElementById('feedback'+i);fb.textContent=(correct?'✅ 정답! +20점':'🔍 아쉬워! +0점')+' · '+(correct?'논리의 빈틈을 정확히 찾았어.':'해설을 통해 전제와 결론을 다시 확인해 보자.');fb.classList.add('show');root.querySelector('.logic-flow').classList.add('show');document.getElementById('quizExplain'+i).classList.add('show');updateScore();}
+function resetQuiz(){quizAnswers.fill(null);document.querySelectorAll('.logic-quiz').forEach(root=>{root.querySelectorAll('.quiz-option').forEach(btn=>{btn.disabled=false;btn.classList.remove('selected')});root.querySelector('.quiz-feedback').classList.remove('show');root.querySelector('.logic-flow').classList.remove('show');root.querySelector('.quiz-explanation').classList.remove('show')});updateScore()}
+updateScore();
+</script></body>
 </html>
