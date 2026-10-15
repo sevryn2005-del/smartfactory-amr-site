@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>스마트팩토리 AMR 릴레이 이송 시스템</title>
-<meta name="description" content="AMR 자율주행, 실시간 플릿 제어, TurtleBot Burger 3D 모델과 릴레이 이송 시뮬레이션을 소개하는 스마트팩토리 웹사이트입니다.">
-<meta name="theme-color" content="#0b111e">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b111e'/%3E%3Cpath d='M12 42h40M18 35h28l-4-17H22z' fill='none' stroke='%2300dfa2' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='22' cy='47' r='5' fill='%2300dfa2'/%3E%3Ccircle cx='42' cy='47' r='5' fill='%2300dfa2'/%3E%3C/svg%3E">
 <style>
 :root {
   --bg: #0b111e;
@@ -191,7 +188,8 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); border-left: 5px solid var(--accent)
   font-weight: bold; box-shadow: 0 0 14px #3b82f666;
   transition: left 1.8s ease-in-out; z-index: 3;
 }
-#robot2 { background: #db2777; box-shadow: 0 0 14px #db277766; }
+#robot1 { left: 8%; } /* 초기 위치를 CSS에서 지정해 첫 실행 때도 위치값이 확실하도록 함 */
+#robot2 { left: 42%; background: #db2777; box-shadow: 0 0 14px #db277766; }
 #cargo {
   position: absolute; top: 19%; left: 10%;
   font-size: 30px; transition: left 1.8s ease-in-out; z-index: 4;
@@ -290,7 +288,7 @@ tr:last-child td { border-bottom: 0; }
   <section class="slide">
     <div class="content">
       <h2>01. 시스템 개요</h2>
-      
+     
       <div class="grid overview-grid">
         <article class="card video-card" tabindex="0" aria-expanded="true">
           <h3>AMR 자율 주행</h3>
@@ -510,8 +508,11 @@ tr:last-child td { border-bottom: 0; }
 
   const initial = { r1: "8%", r2: "42%", cargo: "10%" };
   let running = false;
+  let completed = false;
+  let restarting = false;
   let sequence = 0;
   let timer = null;
+  let restartTimer = null;
 
   function setStatus(message, state = "") {
     status.textContent = message;
@@ -530,9 +531,14 @@ tr:last-child td { border-bottom: 0; }
   function resetSimulation() {
     sequence++;
     if (timer !== null) clearTimeout(timer);
+    if (restartTimer !== null) clearTimeout(restartTimer);
     timer = null;
+    restartTimer = null;
     running = false;
+    restarting = false;
+    completed = false;
 
+    // 로봇과 박스를 시작 위치로 되돌립니다.
     robot1.style.left = initial.r1;
     robot2.style.left = initial.r2;
     cargo.style.left = initial.cargo;
@@ -566,6 +572,7 @@ tr:last-child td { border-bottom: 0; }
       if (!(await wait(1900, id))) return;
 
       running = false;
+      completed = true;
       start.disabled = false;
       start.textContent = "▶ 다시 이송하기";
       setStatus("이송 완료: 박스가 C지점에 도착했습니다.", "done");
@@ -580,8 +587,37 @@ tr:last-child td { border-bottom: 0; }
     }
   }
 
-  start.addEventListener("click", startSimulation);
+  function handleStartClick() {
+    if (running || restarting) return;
+
+    // 한 번 완료된 뒤 '다시 이송하기'를 누르면 우선 시작 위치로 복귀시킨 뒤 재시작합니다.
+    if (completed) {
+      resetSimulation();
+      restarting = true;
+      start.disabled = true;
+      start.textContent = "처음 위치로 복귀 중...";
+      setStatus("로봇과 박스를 시작 위치로 되돌리는 중입니다.", "running");
+
+      const returnSequence = sequence;
+      restartTimer = setTimeout(() => {
+        restartTimer = null;
+        if (returnSequence !== sequence) return; // 복귀 중 리셋을 눌렀다면 오래된 재시작을 취소
+        restarting = false;
+        start.disabled = false;
+        startSimulation();
+      }, 1850); // CSS의 위치 이동 전환 시간(1.8초) 이후 다시 시작
+      return;
+    }
+
+    startSimulation();
+  }
+
+  start.addEventListener("click", handleStartClick);
   reset.addEventListener("click", resetSimulation);
+
+  // 페이지를 처음 열었을 때도 리셋 버튼을 누른 것과 같은 초기 상태를 적용합니다.
+  // 특히 로봇의 left 값이 auto인 상태에서 첫 이동 애니메이션이 시작되는 문제를 방지합니다.
+  resetSimulation();
 
   // 2페이지의 움짤과 애니메이션은 페이지에 표시되는 동안 항상 보이고 재생됩니다.
 })();
