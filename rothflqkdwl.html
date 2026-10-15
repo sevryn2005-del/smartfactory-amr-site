@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시험기간 뇌 과열 방지 시스템</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d35;--ink:#f5f7ff;--muted:#aab5d2;--cyan:#63e6e2;--pink:#ff83b7;--yellow:#ffd166;--green:#8ce99a}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,"Pretendard","Noto Sans KR",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+body{overflow:hidden;background:radial-gradient(circle at 15% 20%,#1c2a51 0,transparent 35%),radial-gradient(circle at 85% 80%,#3a1e4c 0,transparent 30%),var(--bg)}
+.deck{height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}
+.slide{display:none;width:min(1120px,100%);min-height:min(680px,calc(100svh - 100px));padding:clamp(24px,5vw,64px);border:1px solid #ffffff20;border-radius:28px;background:linear-gradient(135deg,#151d35f5,#10162bf5);box-shadow:0 30px 90px #0007;position:relative;overflow:hidden;animation:enter .35s ease}
+.slide.active{display:flex;flex-direction:column;justify-content:center}
+@keyframes enter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
+.kicker{color:var(--cyan);font-size:.85rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
+h1{font-size:clamp(2.5rem,6vw,5.3rem);line-height:1.05;letter-spacing:-.055em;margin:0 0 24px}
+h2{font-size:clamp(2rem,4vw,3.5rem);line-height:1.12;letter-spacing:-.04em;margin:0 0 22px}
+p{font-size:clamp(1rem,1.8vw,1.28rem);line-height:1.7;color:var(--muted);max-width:850px}
+strong{color:var(--ink)} .accent{color:var(--cyan)} .pink{color:var(--pink)} .yellow{color:var(--yellow)}
+.tag{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff2b;border-radius:999px;padding:9px 14px;color:#dfe7ff;font-size:.9rem;margin:5px 5px 0 0}
+.hero-orbit{position:absolute;right:7%;top:17%;width:220px;height:220px;border:1px solid #63e6e255;border-radius:50%;animation:spin 18s linear infinite}
+.hero-orbit:before,.hero-orbit:after{content:"";position:absolute;border:1px solid #ff83b755;border-radius:50%;inset:25px;transform:rotate(60deg) scaleX(.65)}
+.hero-orbit:after{inset:50px;border-color:#ffd16666;transform:rotate(-45deg) scaleX(.65)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.card{background:#ffffff08;border:1px solid #ffffff1c;border-radius:18px;padding:20px}
+.card h3{margin:0 0 10px;font-size:1.15rem}.card p{font-size:1rem;margin:0}
+.mathline{font-size:clamp(1.2rem,2.6vw,2rem);font-weight:800;line-height:1.5;margin:18px 0;padding:18px 22px;border-radius:16px;background:#63e6e211;border:1px solid #63e6e244}
+.pillbutton,button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 17px;font-weight:800;color:#09111e;background:var(--cyan);transition:transform .15s,filter .15s}
+button:hover{transform:translateY(-2px);filter:brightness(1.08)}button:focus-visible{outline:3px solid white;outline-offset:3px}
+button.secondary{background:#ffffff12;color:var(--ink);border:1px solid #ffffff2a}
+button.pinkbtn{background:var(--pink)}button.yellowbtn{background:var(--yellow)}
+.controls{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:linear-gradient(transparent,#070b17dd)}
+.counter{color:var(--muted);font-variant-numeric:tabular-nums;min-width:74px;text-align:center;font-size:.9rem}
+.progress{position:fixed;left:0;top:0;height:4px;background:var(--cyan);width:0;transition:width .25s;z-index:5}
+.small{font-size:.9rem;color:var(--muted)}
+.machine{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.record{padding:12px 14px;border:1px solid #ff83b766;background:#ff83b712;border-radius:12px;font-weight:800;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.verdict{margin-top:18px;border-left:4px solid var(--yellow);padding:14px 18px;background:#ffd16612;border-radius:0 12px 12px 0;color:#ffe8ac;line-height:1.6}
+.question{font-size:clamp(1.35rem,2.8vw,2.1rem);line-height:1.4;color:var(--ink);font-weight:800;margin:18px 0}
+.answer{display:none;margin-top:15px;padding:16px 18px;background:#8ce99a12;border:1px solid #8ce99a55;border-radius:14px;color:#caffd1;line-height:1.7}
+.answer.show{display:block;animation:enter .25s ease}
+.explanation{margin-top:10px;padding-top:10px;border-top:1px solid #8ce99a44}
+.case-slide{justify-content:center}
+.case-slide .grid{margin-top:8px}
+.case-slide .card{padding:15px 18px}
+.case-slide .card p{font-size:.96rem;line-height:1.55}
+.case-slide h2{font-size:clamp(1.65rem,3.2vw,2.75rem);margin-bottom:10px}
+.case-slide p{margin-top:5px;margin-bottom:8px}
+.case-slide .answer{font-size:.95rem;max-height:28vh;overflow-y:auto}
+@media(max-height:780px){.slide{overflow-y:auto;justify-content:flex-start!important}.case-slide .answer{max-height:none}}
+.choice-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.rule{display:flex;gap:14px;align-items:flex-start;margin:12px 0;padding:15px 17px;border:1px solid #ffffff1b;border-radius:14px;background:#ffffff06}
+.num{flex:0 0 34px;height:34px;border-radius:10px;background:#63e6e21c;color:var(--cyan);display:grid;place-items:center;font-weight:900}
+.timerbox{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:20px}
+.clock{font-size:clamp(2.5rem,6vw,4.8rem);font-weight:900;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+footer{position:absolute;bottom:20px;right:28px;color:#73809f;font-size:.75rem}
+@media(max-width:650px){.slide{overflow-y:auto;justify-content:flex-start!important}.case-slide .answer{max-height:none}.case-slide .grid{gap:9px}.case-slide .card{padding:12px 14px}.deck{padding:12px 12px 74px}.slide{min-height:calc(100svh - 100px);padding:25px 22px;border-radius:20px}.grid{grid-template-columns:1fr}.hero-orbit{opacity:.18;right:-40px;top:8%;width:170px;height:170px}.controls{gap:6px}.controls button{padding:10px 12px}.counter{min-width:54px}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<main class="deck" aria-live="polite">
+<section class="slide active">
+  <div class="hero-orbit"></div>
+  <div class="kicker">EXAM SEASON · BRAIN OVERHEAT PREVENTION</div>
+  <h1>쓸데없는 질문이<br><span class="accent">무한 증식</span>할 때</h1>
+  <p>친구의 뇌가 철학자와 말장난 연구소 사이에서 길을 잃었다면, 필요한 건 정답보다 <strong>질문을 분류하는 시스템</strong>이다.</p>
+  <div style="margin-top:22px"><span class="tag">🧠 생각은 자유</span><span class="tag">⏱️ 시험은 유한</span><span class="tag">🛑 지금은 공부 시간</span></div>
+  <footer>FIELD GUIDE 01</footer>
+</section>
+<section class="slide">
+  <div class="kicker">CASE 01 · RECURSIVE RECORDS</div>
+  <h2>세계 최초 기록을 2개 가진 사람은<br><span class="pink">기록이 무한히 늘어날까?</span></h2>
+  <p>가정: 누군가가 세계 최초 기록 2개를 보유한다. 그 사실 자체가 새 기록이 되고, 그 새 기록을 보유한 사실이 또 새 기록이 된다면…?</p>
+  <div class="mathline" id="recordEquation">기록 2개 → “기록 2개를 가진 최초의 사람”</div>
+  <div class="machine" id="recordMachine"><span class="record">기존 기록 × 2</span></div>
+  <div class="choice-row"><button onclick="addRecord()">기록 하나 더 만들기</button><button class="secondary" onclick="resetRecords()">초기화</button></div>
+  <div class="verdict"><strong>논리 체크:</strong> 어떤 사실을 새 문장으로 표현할 수 있다고 해서, 자동으로 공식적인 세계 기록이 추가되지는 않는다. 기록은 정의·검증·등록 기준이 있어야 한다.</div>
+  <footer>CASE FILE 01</footer>
+</section>
+<section class="slide">
+  <div class="kicker">CASE 02 · WORDPLAY VS MEANING</div>
+  <h2>시각장애인이 관광을 가면<br><span class="yellow">‘빛 광(光)’ 자격이 있을까?</span></h2>
+  <p>말의 생김새를 따지는 질문과, 실제 단어가 쓰이는 방식을 따지는 질문은 서로 다르다.</p>
+  <div class="grid">
+    <div class="card"><h3>🔎 글자 분해 모드</h3><p>‘관광(觀光)’의 한자 뜻을 보면 빛 광(光)이 들어간다. 그래서 말장난 소재로는 성립한다.</p></div>
+    <div class="card"><h3>📚 실제 의미 모드</h3><p>현대 한국어의 ‘관광’은 명소나 경관 등을 둘러보며 여행하는 활동을 뜻한다. 시각으로만 경험해야 한다는 조건은 없다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('tourAnswer')">판정 보기</button></div>
+  <div class="answer" id="tourAnswer">판정: <strong>말장난은 가능, 논리적 반박은 아님.</strong> 관광은 시각만으로 하는 활동이 아니며, 촉각·청각·후각·해설 등으로도 경험할 수 있다. 한자의 구성만으로 현대 단어의 자격 조건을 정하면 안 된다.</div>
+  <footer>CASE FILE 02</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 03 · FETAL MOVEMENT</div>
+  <h2>태아는 모두 태동을 한다면<br><span class="pink">인류는 모두 임산부의 배를 찼을까?</span></h2>
+  <p>태아의 움직임을 경험했다는 전제에서, 현재 살아 있는 모든 사람에게 같은 경험이 있다고 결론 내릴 수 있을까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>태아는 움직인다.<br>모든 사람은 태아 시기를 거쳤다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>따라서 전 세계 모든 사람은 임산부의 배를 찬 적이 있다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer3')" aria-expanded="false" aria-controls="caseAnswer3">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer3"><div><strong>판정: 보편화 오류.</strong> 일반적으로 태아는 움직이지만, 그것이 모든 사람이 임산부의 배를 실제로 ‘찼다’는 증거는 아니다. ‘태동’과 ‘배를 차다’를 동일시한 표현상의 비약이다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 태동은 태아의 움직임을 말하지만 모든 움직임이 복벽에 전달되는 강한 ‘발차기’는 아니다. 임신 시기·태아 상태에 따라 움직임의 양상과 감지 여부도 다르다. 또한 임신한 사람 모두를 현재의 의미로 ‘임산부’라고 부르는 것은 상황에 따라 적절하지만, 모든 사람의 출생 경로가 동일하다고 단정할 수는 없다.</div></div>
+  <footer>CASE FILE 03</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 04 · PASSWORD VERIFICATION</div>
+  <h2>비밀번호가 비밀이라면<br><span class="yellow">ATM은 정답을 어떻게 알까?</span></h2>
+  <p>비밀번호를 비밀로 유지하는 것과 입력값이 맞는지 검증하는 것은 양립할 수 있을까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>카드 비밀번호는 타인에게 알려져서는 안 된다.<br>ATM 거래 과정에서는 비밀번호의 유효성을 확인한다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>그러니 ATM이 비밀번호를 알고 있어 비밀이 아니다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer4')" aria-expanded="false" aria-controls="caseAnswer4">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer4"><div><strong>판정: 비밀 유지와 검증의 혼동.</strong> 정답 여부를 확인할 수 있다는 사실이 정답을 공개하거나 평문으로 저장한다는 뜻은 아니다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> ATM이나 은행 시스템은 비밀번호를 화면에 표시하거나 직원에게 공개하지 않고도 암호화된 통신과 보안 장치(HSM 등)를 이용해 검증할 수 있다. 카드 종류와 거래 방식에 따라 발급사 시스템 또는 칩에서 확인할 수 있으며, 평문 비밀번호를 ATM이 보관할 필요는 없다.</div></div>
+  <footer>CASE FILE 04</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 05 · HOUSE ARREST</div>
+  <h2>집이 없는 사람에게<br><span class="pink">자택구금은 자유를 뜻할까?</span></h2>
+  <p>거주지가 없는 사람에게 자택구금 명령이 내려지면, 구금이 무의미해지는 걸까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>자택구금은 지정된 거주 장소에서의 이동을 제한한다.<br>대상자에게 일정한 주거지가 없다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>그러므로 가둘 집이 없으니 자유롭게 다닐 수 있다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer5')" aria-expanded="false" aria-controls="caseAnswer5">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer5"><div><strong>판정: 법적 전제의 오류.</strong> 집이 없다는 사실만으로 이동 제한이 자동 소멸하거나 자유가 허용되지는 않는다. 관할 법률과 실제 명령 조건을 확인해야 한다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 자택구금은 국가와 제도에 따라 요건이 다르며, 주거지 지정과 감독 가능성이 핵심이다. 적절한 장소가 없으면 명령을 그대로 집행할 수 없거나 대체 장소·다른 감독 조건 또는 다른 처분을 검토해야 한다. 한국에서도 ‘경범죄 → 판사의 자택구금 판결’이 일반적인 법적 절차라고 볼 수 없다.</div></div>
+  <footer>CASE FILE 05</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 06 · MOSQUITO GENETICS</div>
+  <h2>모기가 인간의 피를 빨아 번식한다면<br><span class="yellow">인간은 모기의 부모일까?</span></h2>
+  <p>흡혈과 번식의 관계를 유전적 부모 관계로 연결할 수 있을까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>일부 암컷 모기는 알 발달에 필요한 영양분을 얻기 위해 피를 빤다.<br>인간 혈액에는 인간 DNA가 존재할 수 있다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>그러니 피를 제공한 인간은 태어난 모기의 유전적 부모다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer6')" aria-expanded="false" aria-controls="caseAnswer6">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer6"><div><strong>판정: 영양 공급과 유전적 친자 관계의 혼동.</strong> 인간은 일부 모기에게 먹이를 제공할 수 있지만 모기의 유전적 부모가 되지는 않는다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 모기의 유전적 부모는 수컷·암컷 모기다. 혈액은 일부 모기의 난자 발달에 쓰이는 영양 공급원이지 인간 DNA가 모기 자손의 유전체로 들어가는 생식 과정이 아니다. 사람의 성숙한 적혈구에는 핵이 없지만 백혈구 등에는 DNA가 있을 수 있다. 또한 모든 모기가 인간 피를 빠는 것도 아니다.</div></div>
+  <footer>CASE FILE 06</footer>
+</section>
+<section class="slide">
+  <div class="kicker">THE QUESTION FILTER</div>
+  <h2>질문이 떠오르면<br><span class="accent">3초 안에 분류한다</span></h2>
+  <p>질문을 억지로 없애지 말고, 지금 처리할 질문인지 나중에 처리할 질문인지 결정하자.</p>
+  <div class="grid">
+    <div class="card"><h3>🟢 지금 해결</h3><p>과제 이해, 시험 범위, 공부 중 막힌 개념처럼 현재 목표에 직접 연결됨.</p></div>
+    <div class="card"><h3>🟡 메모 후 보류</h3><p>재밌지만 시험과 직접 관련 없음. 한 줄만 적고 공부가 끝난 뒤 보기.</p></div>
+    <div class="card"><h3>🔴 무한 루프 차단</h3><p>정의만 바꾸며 같은 질문이 반복되거나, 답이 나와도 새 가정을 계속 추가함.</p></div>
+    <div class="card"><h3>⏳ 현실 체크</h3><p>“이 질문을 10분 더 생각하면 시험 점수가 오를까?” 아니면 일단 보류.</p></div>
+  </div>
+  <footer>PROTOCOL 03</footer>
+</section>
+<section class="slide">
+  <div class="kicker">INTERACTIVE DECISION</div>
+  <h2>방금 떠오른 질문은<br>어느 칸에 넣을까?</h2>
+  <p>질문을 입력하고 분류 버튼을 눌러라. 이 도구는 생각을 검열하는 게 아니라 시간을 지켜주는 장치다.</p>
+  <input id="userQuestion" placeholder="예: 고양이는 자기 이름을 성으로 인식할까?" style="width:100%;max-width:780px;padding:15px 17px;border-radius:12px;border:1px solid #ffffff35;background:#080e1d;color:white;font:inherit;margin-top:8px">
+  <div class="choice-row">
+    <button onclick="classify('now')">시험과 직접 관련 있음</button>
+    <button class="yellowbtn" onclick="classify('later')">재밌지만 지금은 아님</button>
+    <button class="pinkbtn" onclick="classify('loop')">생각이 꼬리에 꼬리를 뭄</button>
+  </div>
+  <div class="answer" id="classification"></div>
+  <footer>PROTOCOL 04</footer>
+</section>
+<section class="slide">
+  <div class="kicker">EMERGENCY RESET</div>
+  <h2>뇌가 계속 새 탭을 열면<br><span class="pink">25분 동안 탭 잠금</span></h2>
+  <p>떠오른 질문은 메모장에 맡기고, 지금 할 수 있는 가장 작은 공부 행동 하나만 시작한다.</p>
+  <div class="rule"><div class="num">1</div><div><strong>질문 보관</strong><br><span class="small">궁금증을 한 문장으로 적고 닫기.</span></div></div>
+  <div class="rule"><div class="num">2</div><div><strong>작게 시작</strong><br><span class="small">문제 한 개, 개념 한 단락, 암기 카드 다섯 장 중 하나.</span></div></div>
+  <div class="rule"><div class="num">3</div><div><strong>끝나고 다시 보기</strong><br><span class="small">공부 시간 뒤에도 궁금하면 그때 마음껏 파고들기.</span></div></div>
+  <div class="timerbox"><div class="clock" id="clock">25:00</div><div><button onclick="startTimer()">공부 타이머 시작</button> <button class="secondary" onclick="pauseTimer()">일시정지</button><button class="secondary" onclick="resetTimer()">초기화</button></div></div>
+  <div class="small" id="timerStatus" style="margin-top:10px">아직 시작 전. 물 한 모금 마시고 시작!</div>
+  <footer>MISSION COMPLETE</footer>
+</section>
+</main>
+<nav class="controls" aria-label="슬라이드 조작">
+  <button class="secondary" onclick="prevSlide()" aria-label="이전 슬라이드">← 이전</button>
+  <span class="counter" id="counter">01 / 10</span>
+  <button onclick="nextSlide()" aria-label="다음 슬라이드">다음 →</button>
+</nav>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let current=0;
+function showSlide(n){current=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,i)=>s.classList.toggle('active',i===current));document.getElementById('counter').textContent=String(current+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');document.getElementById('progress').style.width=((current+1)/slides.length*100)+'%'}
+function nextSlide(){showSlide(current+1)}function prevSlide(){showSlide(current-1)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){if(!['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName)){e.preventDefault();nextSlide()}}if(e.key==='ArrowLeft'&&!['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))prevSlide()});
+let recordCount=2;
+function addRecord(){recordCount++;const machine=document.getElementById('recordMachine');const chip=document.createElement('span');chip.className='record';chip.textContent='메타 기록 '+(recordCount-2);machine.appendChild(chip);document.getElementById('recordEquation').textContent='기록 '+recordCount+'개? → 문장을 더 만들 수는 있지만, 공식 기록이 자동 생성되진 않음';if(recordCount===8){const note=document.createElement('span');note.className='record';note.style.background='#ffd16622';note.textContent='🚨 무한 루프 감지: 기록 기준을 확인하세요';machine.appendChild(note);}}
+function resetRecords(){recordCount=2;document.getElementById('recordMachine').innerHTML='<span class="record">기존 기록 × 2</span>';document.getElementById('recordEquation').textContent='기록 2개 → “기록 2개를 가진 최초의 사람”'}
+function reveal(id){const box=document.getElementById(id);const shown=box.classList.toggle('show');const button=document.querySelector('[aria-controls="'+id+'"]');if(button)button.setAttribute('aria-expanded',String(shown))}
+function classify(type){const q=document.getElementById('userQuestion').value.trim()||'입력하지 않은 질문';const box=document.getElementById('classification');let msg='';if(type==='now')msg='🟢 <strong>지금 해결하기.</strong><br>질문: “'+escapeHTML(q)+'”<br>공부 목표와 연결되는 이유를 한 줄로 적고, 10분 안에 해결해 보자.';if(type==='later')msg='🟡 <strong>질문 보관함으로 이동.</strong><br>“'+escapeHTML(q)+'”<br>메모 완료. 시험 공부 한 세션이 끝난 뒤 다시 열어도 늦지 않다.';if(type==='loop')msg='🔴 <strong>무한 루프 차단.</strong><br>“'+escapeHTML(q)+'”<br>지금은 결론을 내릴 필요가 없다. 가정을 더 붙이지 말고 질문을 저장한 뒤 다음 문제로 이동!';box.innerHTML=msg;box.classList.add('show')}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let timerSeconds=1500,timerInterval=null;
+function paintTimer(){document.getElementById('clock').textContent=String(Math.floor(timerSeconds/60)).padStart(2,'0')+':'+String(timerSeconds%60).padStart(2,'0')}
+function startTimer(){if(timerInterval)return;document.getElementById('timerStatus').textContent='집중 중… 질문은 메모장에 맡기고 지금 할 일 하나만!';timerInterval=setInterval(()=>{if(timerSeconds>0){timerSeconds--;paintTimer()}else{clearInterval(timerInterval);timerInterval=null;document.getElementById('timerStatus').textContent='완료! 25분 집중 성공. 이제 5분 쉬어도 좋다.';alert('25분 집중 완료! 잠깐 쉬어도 좋아요.')}},1000)}
+function pauseTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;document.getElementById('timerStatus').textContent='일시정지됨. 준비되면 다시 시작하세요.'}}
+function resetTimer(){pauseTimer();timerSeconds=1500;paintTimer();document.getElementById('timerStatus').textContent='타이머 초기화 완료.'}
+showSlide(0);
+</script>
+</body>
+</html>
