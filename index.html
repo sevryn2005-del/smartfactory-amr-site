@@ -3,785 +3,203 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>스마트팩토리 AMR 릴레이 이송 시스템</title>
+<title>시험기간 뇌 과열 방지 시스템</title>
 <style>
-:root {
-  --bg: #0b111e;
-  --card: #162235;
-  --accent: #00dfa2;
-  --text: #fff;
-  --sub: #94a3b8;
-  --border: #233554;
-}
-* { box-sizing: border-box; margin: 0; font-family: "Malgun Gothic", sans-serif; }
-body { background: var(--bg); color: var(--text); overflow: hidden; }
-.presentation { width: 100vw; height: 100vh; position: relative; }
-.slide {
-  position: absolute; inset: 0; padding: 50px 6% 100px;
-  display: flex; align-items: center; justify-content: center;
-  visibility: hidden; opacity: 0; pointer-events: none;
-  transition: opacity .35s; z-index: 1;
-}
-.slide.active { visibility: visible; opacity: 1; pointer-events: auto; z-index: 2; }
-.content { width: 100%; max-width: 1200px; }
-.center { text-align: center; }
-.badge {
-  display: inline-block; color: var(--accent);
-  border: 1px solid var(--accent); border-radius: 20px;
-  padding: 8px 16px; margin-bottom: 20px;
-  background: #00dfa215;
-}
-h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.4; margin-bottom: 20px; }
-h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); border-left: 5px solid var(--accent); padding-left: 15px; margin-bottom: 28px; }
-.highlight, .card h3 { color: var(--accent); }
-.subtitle, .description { color: var(--sub); line-height: 1.8; }
-.subtitle { font-size: 1.2rem; }
-.description { margin-bottom: 18px; }
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
-.card h3 { margin-bottom: 15px; font-size: 1.3rem; }
-.card p { color: var(--sub); line-height: 1.8; }
-/* 2페이지: 관련 움짤과 짧은 반복 애니메이션을 항상 노출 */
-.overview-grid { align-items: start; }
-.video-card { transition: border-color .2s ease, box-shadow .2s ease; }
-.video-card:hover, .video-card:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 8px 26px #0004;
-}
-.card-video {
-  display: block;
-  max-height: none;
-  margin-top: 16px;
-  opacity: 1;
-  overflow: visible;
-  pointer-events: auto;
-}
-.loop-scene {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  min-height: 130px;
-  overflow: hidden;
-  border: 1px solid #30415b;
-  border-radius: 8px;
-  background: linear-gradient(145deg, #0c1627, #15283b 70%, #0a1220);
-  isolation: isolate;
-}
-.external-gif { background: #07111f; display: flex; align-items: center; justify-content: center; }
-.autonomy-gif { display: block; width: 100%; height: 100%; min-height: 130px; object-fit: contain; }
-.gif-load-fallback { display: none; position: absolute; inset: 0; place-items: center; padding: 16px; text-align: center; color: #fda4af; font-size: .85rem; line-height: 1.7; background: #101b2b; }
-.scene-grid {
-  position: absolute; inset: 0;
-  background-image: linear-gradient(#36506b55 1px, transparent 1px), linear-gradient(90deg, #36506b55 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-.scene-label {
-  position: absolute; left: 10px; bottom: 8px; z-index: 8;
-  color: #a9bdd1; font: 700 10px/1.2 monospace; letter-spacing: 1.1px;
-}
-.mini-amr {
-  position: absolute; z-index: 4; width: 38px; height: 27px;
-  border: 2px solid #bfdbfe; border-radius: 7px;
-  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
-  box-shadow: 0 0 16px #3b82f655;
-}
-.mini-amr::before, .mini-amr::after {
-  content: ""; position: absolute; bottom: -5px; width: 8px; height: 5px;
-  background: #020617; border: 1px solid #64748b; border-radius: 2px;
-}
-.mini-amr::before { left: 4px; } .mini-amr::after { right: 4px; }
-.mini-amr .amr-light {
-  position: absolute; left: 50%; top: 4px; width: 5px; height: 5px;
-  border-radius: 50%; background: #00dfa2; transform: translateX(-50%);
-  box-shadow: 0 0 8px #00dfa2;
-}
-/* 자율주행: 주행 경로, 라이다 파동, 장애물 */
-.nav-route {
-  position: absolute; left: 10%; right: 9%; top: 55%; height: 2px;
-  border-top: 2px dashed #00dfa2; opacity: .8;
-  animation: routeFlow 1.4s linear infinite;
-}
-.nav-amr { left: 10%; top: calc(55% - 17px); animation: navDrive 4s ease-in-out infinite; }
-.nav-obstacle {
-  position: absolute; left: 72%; top: 38%; width: 23px; height: 34px;
-  border: 1px solid #fb7185; border-radius: 4px;
-  background: linear-gradient(135deg, #9f1239, #4c0519);
-  box-shadow: 0 0 14px #fb718555;
-}
-.lidar-wave {
-  position: absolute; left: 18%; top: 55%; width: 35px; height: 35px;
-  border: 2px solid #67e8f9; border-radius: 50%; transform: translate(-50%, -50%);
-  opacity: 0; animation: lidarPulse 2s ease-out infinite;
-}
-.lidar-wave.wave2 { animation-delay: 1s; }
-.nav-status {
-  position: absolute; top: 12px; right: 12px; color: #8cf5d7;
-  border: 1px solid #00dfa277; border-radius: 5px; padding: 5px 7px;
-  background: #071b1caa; font: 10px monospace;
-}
-/* 플릿 제어: 관제 노드와 연결된 로봇들 */
-.fleet-link { position: absolute; height: 2px; border-top: 2px dashed #38bdf8; transform-origin: left center; opacity: .65; animation: linkBlink 1.8s linear infinite; }
-.fleet-link.l1 { left: 50%; top: 48%; width: 28%; transform: rotate(-28deg); }
-.fleet-link.l2 { left: 50%; top: 50%; width: 30%; transform: rotate(28deg); animation-delay: .5s; }
-.fleet-link.l3 { left: 21%; top: 76%; width: 31%; transform: rotate(-52deg); animation-delay: 1s; }
-.fleet-hub {
-  position: absolute; left: 43%; top: 34%; width: 64px; height: 43px; z-index: 3;
-  border: 1px solid #67e8f9; border-radius: 6px; background: #102a42;
-  box-shadow: 0 0 20px #38bdf844; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 4px;
-}
-.fleet-hub::before { content: "FLEET"; color: #bae6fd; font: 700 9px monospace; letter-spacing: 1px; }
-.fleet-bars { display: flex; align-items: end; gap: 3px; height: 11px; }
-.fleet-bars i { display: block; width: 4px; background: #00dfa2; border-radius: 2px; animation: barPulse .8s ease-in-out infinite alternate; }
-.fleet-bars i:nth-child(1) { height: 5px; } .fleet-bars i:nth-child(2) { height: 10px; animation-delay: .2s; } .fleet-bars i:nth-child(3) { height: 7px; animation-delay: .4s; }
-.fleet-bot { width: 29px; height: 21px; border-color: #fbcfe8; background: linear-gradient(145deg, #db2777, #831843); }
-.fleet-bot.a { left: 12%; top: 19%; animation: botBobA 2.4s ease-in-out infinite; }
-.fleet-bot.b { right: 9%; top: 66%; animation: botBobB 2.8s ease-in-out infinite; }
-.fleet-bot.c { left: 17%; bottom: 15%; animation: botBobC 2.2s ease-in-out infinite; }
-/* 릴레이 이송: 두 AMR 사이로 박스가 전달됨 */
-.relay-track { position: absolute; left: 9%; right: 9%; top: 57%; border-top: 2px dashed #64748b; }
-.relay-amr1 { left: 13%; top: calc(57% - 18px); }
-.relay-amr2 { right: 13%; top: calc(57% - 18px); background: linear-gradient(145deg, #db2777, #9d174d); border-color: #fbcfe8; box-shadow: 0 0 16px #db277755; }
-.relay-zone { position: absolute; left: 46%; top: 26%; width: 8%; height: 48%; border-left: 1px dashed #00dfa2; border-right: 1px dashed #00dfa2; background: #00dfa20c; }
-.relay-box {
-  position: absolute; z-index: 5; left: 23%; top: calc(57% - 32px); width: 18px; height: 18px;
-  display: grid; place-items: center; border: 1px solid #fde68a; border-radius: 3px;
-  background: linear-gradient(145deg, #fbbf24, #b45309); color: #fff7cc;
-  font-size: 10px; box-shadow: 0 0 10px #f59e0b55; animation: relayHandoff 4s ease-in-out infinite;
-}
-.relay-arrow { position: absolute; left: 44%; top: 22%; color: #00dfa2; font-size: 16px; animation: arrowPulse 1s ease-in-out infinite alternate; }
-.loop-caption { margin-top: 8px; color: var(--sub); font-size: .76rem; line-height: 1.45 !important; }
-@keyframes navDrive { 0%, 10% { transform: translateX(0); } 70%, 90% { transform: translateX(215%); } 100% { transform: translateX(0); } }
-@keyframes lidarPulse { 0% { transform: translate(-50%, -50%) scale(.25); opacity: .95; } 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
-@keyframes routeFlow { to { background-position: 22px 0; } }
-@keyframes linkBlink { 0%,100% { opacity: .25; } 50% { opacity: .95; } }
-@keyframes barPulse { to { height: 3px; opacity: .5; } }
-@keyframes botBobA { 0%,100% { transform: translate(0,0); } 50% { transform: translate(16px,8px); } }
-@keyframes botBobB { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-13px,-7px); } }
-@keyframes botBobC { 0%,100% { transform: translate(0,0); } 50% { transform: translate(9px,-11px); } }
-@keyframes relayHandoff { 0%, 8% { left: 23%; } 42%, 56% { left: 47%; } 90%, 100% { left: 73%; } }
-@keyframes arrowPulse { to { opacity: .35; transform: translateX(4px); } }
-.video-card .loop-scene * { animation-play-state: running !important; }
-@media (prefers-reduced-motion: reduce) {
-  .card-video, .video-card { transition: none; }
-}
-.factory {
-  height: 260px; position: relative; overflow: hidden;
-  background-color: #111827;
-  background-image: linear-gradient(#23355455 1px, transparent 1px), linear-gradient(90deg, #23355455 1px, transparent 1px);
-  background-size: 25px 25px;
-  border: 2px dashed var(--border); border-radius: 14px; margin-bottom: 18px;
-}
-.route { position: absolute; top: 48%; left: 8%; width: 84%; border-top: 2px dashed #64748b; }
-.station {
-  position: absolute; bottom: 14px; padding: 9px 10px;
-  background: #1f2937; border: 1px solid var(--border);
-  border-radius: 6px; color: var(--sub); font-size: .8rem; white-space: nowrap;
-}
-.station-a { left: 2%; }
-.station-b { left: 42%; }
-.station-c { right: 2%; }
-.robot {
-  position: absolute; top: 34%; width: 76px; height: 48px;
-  display: flex; align-items: center; justify-content: center;
-  background: #3b82f6; border-radius: 8px; font-size: .75rem;
-  font-weight: bold; box-shadow: 0 0 14px #3b82f666;
-  transition: left 1.8s ease-in-out; z-index: 3;
-}
-#robot1 { left: 8%; } /* 초기 위치를 CSS에서 지정해 첫 실행 때도 위치값이 확실하도록 함 */
-#robot2 { left: 42%; background: #db2777; box-shadow: 0 0 14px #db277766; }
-#cargo {
-  position: absolute; top: 19%; left: 10%;
-  font-size: 30px; transition: left 1.8s ease-in-out; z-index: 4;
-}
-.status { display: flex; align-items: center; gap: 9px; color: var(--sub); margin-bottom: 16px; min-height: 24px; }
-.dot { width: 9px; height: 9px; border-radius: 50%; background: #64748b; }
-.dot.running { background: var(--accent); animation: pulse .8s infinite; }
-.dot.done { background: #22c55e; }
-@keyframes pulse { 50% { opacity: .3; } }
-.controls { display: flex; gap: 12px; flex-wrap: wrap; }
-button { cursor: pointer; font-weight: bold; border: 0; border-radius: 6px; padding: 12px 20px; }
-.action { background: var(--accent); color: #06130f; }
-.reset { background: #475569; color: white; }
-button:disabled { opacity: .45; cursor: not-allowed; }
-.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
-table { width: 100%; min-width: 540px; border-collapse: collapse; background: var(--card); }
-th, td { text-align: left; padding: 16px; border-bottom: 1px solid var(--border); line-height: 1.6; }
-th { color: var(--accent); background: #0003; }
-td { color: var(--sub); }
-tr:last-child td { border-bottom: 0; }
-.note { margin-top: 16px; color: var(--sub); font-size: .9rem; line-height: 1.6; }
-.navigation {
-  position: fixed; z-index: 100; bottom: 20px; left: 50%;
-  transform: translateX(-50%); display: flex; align-items: center; gap: 20px;
-  padding: 10px 20px; border: 1px solid var(--border); border-radius: 30px;
-  background: #162235f5; white-space: nowrap;
-}
-.nav-btn { background: none; color: white; padding: 6px; }
-.nav-btn:hover:not(:disabled) { color: var(--accent); }
-#indicator { color: var(--sub); font-size: .9rem; }
-@media(max-width: 700px) {
-  .slide { padding: 25px 18px 90px; }
-  .grid { grid-template-columns: 1fr; gap: 12px; }
-  .card { padding: 16px; }
-  .card h3 { margin-bottom: 7px; font-size: 1.1rem; }
-  .card p { font-size: .9rem; }
-  .factory { height: 225px; }
-  .robot { width: 60px; height: 42px; font-size: .65rem; }
-  .station { font-size: .62rem; padding: 7px 5px; }
-  .navigation { gap: 12px; padding: 8px 14px; }
-}
-
-/* 3페이지: 왼쪽 TurtleBot Burger 모델 + 오른쪽 릴레이 시뮬레이션 */
-.process-layout {
-  display: grid;
-  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.5fr);
-  gap: 24px;
-  align-items: stretch;
-}
-.burger-panel {
-  min-width: 0;
-  min-height: 390px;
-  padding: 20px 16px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: radial-gradient(ellipse at 50% 42%, #1c3550 0%, #111827 68%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.burger-panel h3 { color: var(--accent); font-size: 1.05rem; margin-bottom: 4px; }
-.burger-panel .model-caption { color: var(--sub); font-size: .8rem; text-align: center; line-height: 1.5; }
-.burger-model { width: 100%; max-width: 310px; height: 300px; display: block; overflow: hidden; border-radius: 12px; cursor: grab; }
-.burger-model:active { cursor: grabbing; }
-#burger3d canvas { display:block; width:100%; height:100%; }
-.model-loading { color: var(--sub); font-size:.78rem; text-align:center; margin-top:4px; }
-.burger-specs { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
-.burger-specs span { border: 1px solid #2d4965; color: #cbd5e1; border-radius: 20px; padding: 5px 9px; font-size: .72rem; }
-.process-main { min-width: 0; }
-.process-main .factory { height: 260px; }
-@media(max-width: 800px) {
-  body { overflow: auto; }
-  .presentation { min-height: 100vh; height: auto; }
-  .slide { overflow-y: auto; align-items: flex-start; }
-  .process-layout { grid-template-columns: 1fr; gap: 14px; }
-  .burger-panel { min-height: 245px; padding: 12px; }
-  .burger-model { max-width: 230px; height: 220px; }
-  .process-main .factory { height: 225px; }
-}
-
+:root{--bg:#0b1020;--panel:#151d35;--ink:#f5f7ff;--muted:#aab5d2;--cyan:#63e6e2;--pink:#ff83b7;--yellow:#ffd166;--green:#8ce99a}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,"Pretendard","Noto Sans KR",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+body{overflow:hidden;background:radial-gradient(circle at 15% 20%,#1c2a51 0,transparent 35%),radial-gradient(circle at 85% 80%,#3a1e4c 0,transparent 30%),var(--bg)}
+.deck{height:100svh;display:flex;align-items:center;justify-content:center;padding:24px}
+.slide{display:none;width:min(1120px,100%);min-height:min(680px,calc(100svh - 100px));padding:clamp(24px,5vw,64px);border:1px solid #ffffff20;border-radius:28px;background:linear-gradient(135deg,#151d35f5,#10162bf5);box-shadow:0 30px 90px #0007;position:relative;overflow:hidden;animation:enter .35s ease}
+.slide.active{display:flex;flex-direction:column;justify-content:center}
+@keyframes enter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
+.kicker{color:var(--cyan);font-size:.85rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
+h1{font-size:clamp(2.5rem,6vw,5.3rem);line-height:1.05;letter-spacing:-.055em;margin:0 0 24px}
+h2{font-size:clamp(2rem,4vw,3.5rem);line-height:1.12;letter-spacing:-.04em;margin:0 0 22px}
+p{font-size:clamp(1rem,1.8vw,1.28rem);line-height:1.7;color:var(--muted);max-width:850px}
+strong{color:var(--ink)} .accent{color:var(--cyan)} .pink{color:var(--pink)} .yellow{color:var(--yellow)}
+.tag{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff2b;border-radius:999px;padding:9px 14px;color:#dfe7ff;font-size:.9rem;margin:5px 5px 0 0}
+.hero-orbit{position:absolute;right:7%;top:17%;width:220px;height:220px;border:1px solid #63e6e255;border-radius:50%;animation:spin 18s linear infinite}
+.hero-orbit:before,.hero-orbit:after{content:"";position:absolute;border:1px solid #ff83b755;border-radius:50%;inset:25px;transform:rotate(60deg) scaleX(.65)}
+.hero-orbit:after{inset:50px;border-color:#ffd16666;transform:rotate(-45deg) scaleX(.65)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.card{background:#ffffff08;border:1px solid #ffffff1c;border-radius:18px;padding:20px}
+.card h3{margin:0 0 10px;font-size:1.15rem}.card p{font-size:1rem;margin:0}
+.mathline{font-size:clamp(1.2rem,2.6vw,2rem);font-weight:800;line-height:1.5;margin:18px 0;padding:18px 22px;border-radius:16px;background:#63e6e211;border:1px solid #63e6e244}
+.pillbutton,button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 17px;font-weight:800;color:#09111e;background:var(--cyan);transition:transform .15s,filter .15s}
+button:hover{transform:translateY(-2px);filter:brightness(1.08)}button:focus-visible{outline:3px solid white;outline-offset:3px}
+button.secondary{background:#ffffff12;color:var(--ink);border:1px solid #ffffff2a}
+button.pinkbtn{background:var(--pink)}button.yellowbtn{background:var(--yellow)}
+.controls{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:linear-gradient(transparent,#070b17dd)}
+.counter{color:var(--muted);font-variant-numeric:tabular-nums;min-width:74px;text-align:center;font-size:.9rem}
+.progress{position:fixed;left:0;top:0;height:4px;background:var(--cyan);width:0;transition:width .25s;z-index:5}
+.small{font-size:.9rem;color:var(--muted)}
+.machine{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.record{padding:12px 14px;border:1px solid #ff83b766;background:#ff83b712;border-radius:12px;font-weight:800;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.verdict{margin-top:18px;border-left:4px solid var(--yellow);padding:14px 18px;background:#ffd16612;border-radius:0 12px 12px 0;color:#ffe8ac;line-height:1.6}
+.question{font-size:clamp(1.35rem,2.8vw,2.1rem);line-height:1.4;color:var(--ink);font-weight:800;margin:18px 0}
+.answer{display:none;margin-top:15px;padding:16px 18px;background:#8ce99a12;border:1px solid #8ce99a55;border-radius:14px;color:#caffd1;line-height:1.7}
+.answer.show{display:block;animation:enter .25s ease}
+.explanation{margin-top:10px;padding-top:10px;border-top:1px solid #8ce99a44}
+.case-slide{justify-content:center}
+.case-slide .grid{margin-top:8px}
+.case-slide .card{padding:15px 18px}
+.case-slide .card p{font-size:.96rem;line-height:1.55}
+.case-slide h2{font-size:clamp(1.65rem,3.2vw,2.75rem);margin-bottom:10px}
+.case-slide p{margin-top:5px;margin-bottom:8px}
+.case-slide .answer{font-size:.95rem;max-height:28vh;overflow-y:auto}
+@media(max-height:780px){.slide{overflow-y:auto;justify-content:flex-start!important}.case-slide .answer{max-height:none}}
+.choice-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.rule{display:flex;gap:14px;align-items:flex-start;margin:12px 0;padding:15px 17px;border:1px solid #ffffff1b;border-radius:14px;background:#ffffff06}
+.num{flex:0 0 34px;height:34px;border-radius:10px;background:#63e6e21c;color:var(--cyan);display:grid;place-items:center;font-weight:900}
+.timerbox{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:20px}
+.clock{font-size:clamp(2.5rem,6vw,4.8rem);font-weight:900;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+footer{position:absolute;bottom:20px;right:28px;color:#73809f;font-size:.75rem}
+@media(max-width:650px){.slide{overflow-y:auto;justify-content:flex-start!important}.case-slide .answer{max-height:none}.case-slide .grid{gap:9px}.case-slide .card{padding:12px 14px}.deck{padding:12px 12px 74px}.slide{min-height:calc(100svh - 100px);padding:25px 22px;border-radius:20px}.grid{grid-template-columns:1fr}.hero-orbit{opacity:.18;right:-40px;top:8%;width:170px;height:170px}.controls{gap:6px}.controls button{padding:10px 12px}.counter{min-width:54px}}
 </style>
 </head>
 <body>
-
-<main class="presentation">
-  <section class="slide active">
-    <div class="content center">
-      <span class="badge">Smart Factory Innovation</span>
-      <h1>AMR 협업 및<br><span class="highlight">릴레이 이송 시스템</span></h1>
-      <p class="subtitle">자율 이동 로봇 간 실시간 연계를 통한 물류 최적화 솔루션</p>
-    </div>
-  </section>
-
-  <section class="slide">
-    <div class="content">
-      <h2>01. 시스템 개요</h2>
-     
-      <div class="grid overview-grid">
-        <article class="card video-card" tabindex="0" aria-expanded="true">
-          <h3>AMR 자율 주행</h3>
-          <p>LiDAR 및 카메라를 이용해 주변 환경을 인식하고 장애물을 회피하며 목적지까지 이동합니다.</p>
-          <div class="card-video" aria-hidden="false">
-            <div class="loop-scene external-gif" role="img" aria-label="사용자가 제공한 자율주행 움짤">
-              <img
-                class="autonomy-gif"
-                src="https://t1.daumcdn.net/cfile/cafe/99FA30455B7F76C738"
-                alt="AMR 자율주행 움짤"
-                loading="eager"
-                referrerpolicy="no-referrer"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
-              >
-              <div class="gif-load-fallback" role="status">움짤을 불러오지 못했습니다.<br>인터넷 연결 또는 원본 주소를 확인해 주세요.</div>
-            </div>
-            <p class="loop-caption">자율주행</p>
-          </div>
-        </article>
-        <article class="card video-card" tabindex="0" aria-expanded="true">
-          <h3>실시간 플릿 제어</h3>
-          <p>중앙 관제 시스템이 여러 AMR의 경로와 작업 스케줄을 조율합니다.</p>
-          <div class="card-video" aria-hidden="false">
-            <div class="loop-scene external-gif" role="img" aria-label="사용자가 제공한 실시간 플릿 제어 움짤">
-              <img
-                class="autonomy-gif"
-                src="https://t1.daumcdn.net/cafeattach/mEr9/5a442823a25b7770a88010f5dd1fc1bf7e1181a2"
-                alt="실시간 플릿 제어 움짤"
-                loading="eager"
-                referrerpolicy="no-referrer"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
-              >
-              <div class="gif-load-fallback" role="status">움짤을 불러오지 못했습니다.<br>인터넷 연결 또는 원본 주소를 확인해 주세요.</div>
-            </div>
-            <p class="loop-caption">실시간 플릿 제어</p>
-          </div>
-        </article>
-        <article class="card video-card" tabindex="0" aria-expanded="true">
-          <h3>릴레이 이송</h3>
-          <p>구간별 AMR이 물품을 순차적으로 인계하여 물류 운영의 유연성을 높입니다.</p>
-          <div class="card-video" aria-hidden="false">
-            <div class="loop-scene external-gif" role="img" aria-label="사용자가 제공한 릴레이 이송 움짤">
-              <img
-                class="autonomy-gif"
-                src="https://mblogthumb-phinf.pstatic.net/MjAxOTA4MTRfMjU3/MDAxNTY1NzY2NzE5OTE0.__w1-8MzbSdrNdrwGocd0qDtOq_J4CGCn3rfSGUVbb4g.1SqtzkC-a7KMivUk2Fin9QCrsIk6TERgSUAuEp6OzA8g.GIF.mulretime/ebbbc76ee2e3458e87e70a708632a83c.gif?type=w966"
-                alt="릴레이 이송 움짤"
-                loading="eager"
-                referrerpolicy="no-referrer"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
-              >
-              <div class="gif-load-fallback" role="status">릴레이 이송 움짤을 불러오지 못했습니다.<br>원본 주소 또는 외부 이미지 접근 제한을 확인해 주세요.</div>
-            </div>
-            <p class="loop-caption">릴레이 이송</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide">
-    <div class="content">
-      <h2>02. 릴레이 이송 프로세스</h2>
-      <p class="description">이송 시작 버튼을 눌러 AMR 간 박스 전달 과정을 확인하세요.</p>
-      <div class="process-layout">
-        <aside class="burger-panel" aria-label="TurtleBot Burger 3D 모델">
-          <h3>TurtleBot Burger</h3>
-          <p class="model-caption">ROBOTIS 공식 공개 STL 기반 3D 모델 · 드래그하여 회전</p>
-          <div id="burger3d" class="burger-model" role="img" aria-label="공식 TurtleBot3 Burger STL을 이용한 3D 뷰어"></div>
-          <p id="burgerModelStatus" class="model-loading" aria-live="polite">공식 3D 모델 불러오는 중...</p>
-          <!-- 실제 베이스 STL은 ROBOTIS-GIT/turtlebot3 공개 저장소에서 불러옵니다. -->
-          <template id="oldBurgerSvg">
-            <defs>
-              <linearGradient id="burgerTop" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#f8fafc"/><stop offset=".55" stop-color="#cbd5e1"/><stop offset="1" stop-color="#64748b"/>
-              </linearGradient>
-              <linearGradient id="burgerSide" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#64748b"/><stop offset="1" stop-color="#263548"/>
-              </linearGradient>
-              <linearGradient id="burgerBase" x1="0" y1="0" x2="0.9" y2="1">
-                <stop offset="0" stop-color="#f1f5f9"/><stop offset=".5" stop-color="#94a3b8"/><stop offset="1" stop-color="#475569"/>
-              </linearGradient>
-              <linearGradient id="burgerBlack" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#0b1220"/>
-              </linearGradient>
-            </defs>
-            <!-- 바닥 그림자 -->
-            <ellipse cx="161" cy="257" rx="104" ry="20" fill="#020617" opacity=".55"/>
-            <!-- 바퀴 -->
-            <path d="M76 207 Q64 207 63 221 L63 241 Q65 251 78 248 L94 241 L94 216 Z" fill="#111827" stroke="#64748b" stroke-width="2"/>
-            <path d="M223 216 L242 208 Q254 207 257 220 L257 239 Q254 250 242 247 L222 239 Z" fill="#111827" stroke="#64748b" stroke-width="2"/>
-            <path d="M68 222 L91 215 M68 231 L92 224 M68 240 L91 233 M229 215 L252 222 M228 225 L253 232 M228 235 L251 242" stroke="#475569" stroke-width="3"/>
-            <!-- 하부 섀시 측면 -->
-            <path d="M83 188 L211 188 L242 207 L111 226 L78 209 Z" fill="url(#burgerSide)" stroke="#94a3b8" stroke-width="1.5"/>
-            <path d="M78 209 L111 226 L111 240 L78 222 Z" fill="#334155"/>
-            <path d="M111 226 L242 207 L242 221 L111 240 Z" fill="#1e293b"/>
-            <!-- 하부 플랫폼 -->
-            <path d="M77 178 L204 160 L245 183 L111 204 Z" fill="url(#burgerBase)" stroke="#cbd5e1" stroke-width="1.5"/>
-            <path d="M77 178 L111 204 L111 219 L77 193 Z" fill="#64748b"/>
-            <path d="M111 204 L245 183 L245 198 L111 219 Z" fill="#475569"/>
-            <!-- 상부 흰색 플랫폼 -->
-            <path d="M88 144 L199 128 L233 147 L118 166 Z" fill="url(#burgerTop)" stroke="#f8fafc" stroke-width="1.5"/>
-            <path d="M88 144 L118 166 L118 181 L88 159 Z" fill="#94a3b8"/>
-            <path d="M118 166 L233 147 L233 162 L118 181 Z" fill="url(#burgerSide)"/>
-            <!-- 센서/컴퓨터 기둥 -->
-            <path d="M131 98 L176 91 L194 102 L149 110 Z" fill="#dbeafe" stroke="#94a3b8"/>
-            <path d="M131 98 L149 110 L149 151 L131 139 Z" fill="#64748b"/>
-            <path d="M149 110 L194 102 L194 143 L149 151 Z" fill="#cbd5e1" stroke="#94a3b8"/>
-            <path d="M141 112 L183 105 L183 132 L141 139 Z" fill="#0f172a" stroke="#334155"/>
-            <circle cx="153" cy="123" r="3" fill="#00dfa2"/>
-            <circle cx="164" cy="121" r="2" fill="#60a5fa"/>
-            <circle cx="174" cy="119" r="2" fill="#f59e0b"/>
-            <!-- 상단 센서/라이다 -->
-            <path d="M125 82 L174 74 L205 91 L155 100 Z" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
-            <path d="M125 82 L155 100 L155 112 L125 94 Z" fill="#1e293b"/>
-            <path d="M155 100 L205 91 L205 103 L155 112 Z" fill="#334155"/>
-            <path d="M129 77 L175 69 L201 84 L154 93 Z" fill="#0f172a" stroke="#94a3b8" stroke-width="1.5"/>
-            <path d="M136 78 L175 72 L193 83 L154 89 Z" fill="#38bdf8" opacity=".8"/>
-            <ellipse cx="163" cy="81" rx="17" ry="5" fill="#bae6fd" opacity=".7"/>
-            <!-- 상태 LED -->
-            <circle cx="104" cy="181" r="3.5" fill="#00dfa2"/>
-            <circle cx="218" cy="153" r="3.5" fill="#00dfa2"/>
-            <!-- 작은 디테일 -->
-            <path d="M126 174 L126 184 M137 172 L137 182 M204 158 L204 168" stroke="#e2e8f0" stroke-width="2" opacity=".8"/>
-            <text x="160" y="278" fill="#94a3b8" font-size="10" text-anchor="middle" letter-spacing="2">BURGER • 3D VIEW</text>
-          </template>
-          <div class="burger-specs"><span>LiDAR</span><span>차동 구동</span><span>ROS 2</span></div>
-        </aside>
-        <div class="process-main">
-          <div class="factory">
-            <div class="route"></div>
-            <div class="station station-a">출발지 (A지점)</div>
-            <div class="station station-b">릴레이존 (B지점)</div>
-            <div class="station station-c">도착지 (C지점)</div>
-            <div class="robot" id="robot1">AMR 01</div>
-            <div class="robot" id="robot2">AMR 02</div>
-            <div id="cargo">📦</div>
-          </div>
-          <div class="status" aria-live="polite">
-            <span class="dot" id="dot"></span>
-            <span id="status">대기 중: 이송을 시작할 수 있습니다.</span>
-          </div>
-          <div class="controls">
-            <button class="action" id="start">▶ 이송 시작하기</button>
-            <button class="reset" id="reset">↻ 리셋</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide">
-    <div class="content">
-      <h2>03. 기대 효과 및 결론</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>구분</th><th>고정형 컨베이어</th><th>AMR 릴레이 시스템</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><strong>공간 활용</strong></td><td>고정된 라인 배치</td><td>유연한 경로 변경</td></tr>
-            <tr><td><strong>유지 보수</strong></td><td>라인 장애 시 전체 흐름에 영향</td><td>대체 로봇 및 우회 경로 활용 가능</td></tr>
-            <tr><td><strong>운영 효율</strong></td><td>고정 라인 중심 운영</td><td>작업량에 맞춘 로봇 운용</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="note">※ 실제 개선 효과는 현장 환경과 작업량, 로봇 구성에 따라 달라질 수 있습니다.</p>
-    </div>
-  </section>
+<div class="progress" id="progress"></div>
+<main class="deck" aria-live="polite">
+<section class="slide active">
+  <div class="hero-orbit"></div>
+  <div class="kicker">EXAM SEASON · BRAIN OVERHEAT PREVENTION</div>
+  <h1>쓸데없는 질문이<br><span class="accent">무한 증식</span>할 때</h1>
+  <p>친구의 뇌가 철학자와 말장난 연구소 사이에서 길을 잃었다면, 필요한 건 정답보다 <strong>질문을 분류하는 시스템</strong>이다.</p>
+  <div style="margin-top:22px"><span class="tag">🧠 생각은 자유</span><span class="tag">⏱️ 시험은 유한</span><span class="tag">🛑 지금은 공부 시간</span></div>
+  <footer>FIELD GUIDE 01</footer>
+</section>
+<section class="slide">
+  <div class="kicker">CASE 01 · RECURSIVE RECORDS</div>
+  <h2>세계 최초 기록을 2개 가진 사람은<br><span class="pink">기록이 무한히 늘어날까?</span></h2>
+  <p>가정: 누군가가 세계 최초 기록 2개를 보유한다. 그 사실 자체가 새 기록이 되고, 그 새 기록을 보유한 사실이 또 새 기록이 된다면…?</p>
+  <div class="mathline" id="recordEquation">기록 2개 → “기록 2개를 가진 최초의 사람”</div>
+  <div class="machine" id="recordMachine"><span class="record">기존 기록 × 2</span></div>
+  <div class="choice-row"><button onclick="addRecord()">기록 하나 더 만들기</button><button class="secondary" onclick="resetRecords()">초기화</button></div>
+  <div class="verdict"><strong>논리 체크:</strong> 어떤 사실을 새 문장으로 표현할 수 있다고 해서, 자동으로 공식적인 세계 기록이 추가되지는 않는다. 기록은 정의·검증·등록 기준이 있어야 한다.</div>
+  <footer>CASE FILE 01</footer>
+</section>
+<section class="slide">
+  <div class="kicker">CASE 02 · WORDPLAY VS MEANING</div>
+  <h2>시각장애인이 관광을 가면<br><span class="yellow">‘빛 광(光)’ 자격이 있을까?</span></h2>
+  <p>말의 생김새를 따지는 질문과, 실제 단어가 쓰이는 방식을 따지는 질문은 서로 다르다.</p>
+  <div class="grid">
+    <div class="card"><h3>🔎 글자 분해 모드</h3><p>‘관광(觀光)’의 한자 뜻을 보면 빛 광(光)이 들어간다. 그래서 말장난 소재로는 성립한다.</p></div>
+    <div class="card"><h3>📚 실제 의미 모드</h3><p>현대 한국어의 ‘관광’은 명소나 경관 등을 둘러보며 여행하는 활동을 뜻한다. 시각으로만 경험해야 한다는 조건은 없다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('tourAnswer')">판정 보기</button></div>
+  <div class="answer" id="tourAnswer">판정: <strong>말장난은 가능, 논리적 반박은 아님.</strong> 관광은 시각만으로 하는 활동이 아니며, 촉각·청각·후각·해설 등으로도 경험할 수 있다. 한자의 구성만으로 현대 단어의 자격 조건을 정하면 안 된다.</div>
+  <footer>CASE FILE 02</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 03 · FETAL MOVEMENT</div>
+  <h2>태아는 모두 태동을 한다면<br><span class="pink">인류는 모두 임산부의 배를 찼을까?</span></h2>
+  <p>태아의 움직임을 경험했다는 전제에서, 현재 살아 있는 모든 사람에게 같은 경험이 있다고 결론 내릴 수 있을까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>태아는 움직인다.<br>모든 사람은 태아 시기를 거쳤다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>따라서 전 세계 모든 사람은 임산부의 배를 찬 적이 있다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer3')" aria-expanded="false" aria-controls="caseAnswer3">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer3"><div><strong>판정: 보편화 오류.</strong> 일반적으로 태아는 움직이지만, 그것이 모든 사람이 임산부의 배를 실제로 ‘찼다’는 증거는 아니다. ‘태동’과 ‘배를 차다’를 동일시한 표현상의 비약이다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 태동은 태아의 움직임을 말하지만 모든 움직임이 복벽에 전달되는 강한 ‘발차기’는 아니다. 임신 시기·태아 상태에 따라 움직임의 양상과 감지 여부도 다르다. 또한 임신한 사람 모두를 현재의 의미로 ‘임산부’라고 부르는 것은 상황에 따라 적절하지만, 모든 사람의 출생 경로가 동일하다고 단정할 수는 없다.</div></div>
+  <footer>CASE FILE 03</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 04 · PASSWORD VERIFICATION</div>
+  <h2>비밀번호가 비밀이라면<br><span class="yellow">ATM은 정답을 어떻게 알까?</span></h2>
+  <p>비밀번호를 비밀로 유지하는 것과 입력값이 맞는지 검증하는 것은 양립할 수 있을까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>카드 비밀번호는 타인에게 알려져서는 안 된다.<br>ATM 거래 과정에서는 비밀번호의 유효성을 확인한다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>그러니 ATM이 비밀번호를 알고 있어 비밀이 아니다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer4')" aria-expanded="false" aria-controls="caseAnswer4">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer4"><div><strong>판정: 비밀 유지와 검증의 혼동.</strong> 정답 여부를 확인할 수 있다는 사실이 정답을 공개하거나 평문으로 저장한다는 뜻은 아니다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> ATM이나 은행 시스템은 비밀번호를 화면에 표시하거나 직원에게 공개하지 않고도 암호화된 통신과 보안 장치(HSM 등)를 이용해 검증할 수 있다. 카드 종류와 거래 방식에 따라 발급사 시스템 또는 칩에서 확인할 수 있으며, 평문 비밀번호를 ATM이 보관할 필요는 없다.</div></div>
+  <footer>CASE FILE 04</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 05 · HOUSE ARREST</div>
+  <h2>집이 없는 사람에게<br><span class="pink">자택구금은 자유를 뜻할까?</span></h2>
+  <p>거주지가 없는 사람에게 자택구금 명령이 내려지면, 구금이 무의미해지는 걸까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>자택구금은 지정된 거주 장소에서의 이동을 제한한다.<br>대상자에게 일정한 주거지가 없다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>그러므로 가둘 집이 없으니 자유롭게 다닐 수 있다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer5')" aria-expanded="false" aria-controls="caseAnswer5">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer5"><div><strong>판정: 법적 전제의 오류.</strong> 집이 없다는 사실만으로 이동 제한이 자동 소멸하거나 자유가 허용되지는 않는다. 관할 법률과 실제 명령 조건을 확인해야 한다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 자택구금은 국가와 제도에 따라 요건이 다르며, 주거지 지정과 감독 가능성이 핵심이다. 적절한 장소가 없으면 명령을 그대로 집행할 수 없거나 대체 장소·다른 감독 조건 또는 다른 처분을 검토해야 한다. 한국에서도 ‘경범죄 → 판사의 자택구금 판결’이 일반적인 법적 절차라고 볼 수 없다.</div></div>
+  <footer>CASE FILE 05</footer>
+</section>
+<section class="slide case-slide">
+  <div class="kicker">CASE 06 · MOSQUITO GENETICS</div>
+  <h2>모기가 인간의 피를 빨아 번식한다면<br><span class="yellow">인간은 모기의 부모일까?</span></h2>
+  <p>흡혈과 번식의 관계를 유전적 부모 관계로 연결할 수 있을까?</p>
+  <div class="grid reasoning-grid">
+    <div class="card"><h3>① 전제</h3><p>일부 암컷 모기는 알 발달에 필요한 영양분을 얻기 위해 피를 빤다.<br>인간 혈액에는 인간 DNA가 존재할 수 있다.</p></div>
+    <div class="card"><h3>② 주장하는 결론</h3><p>그러니 피를 제공한 인간은 태어난 모기의 유전적 부모다.</p></div>
+  </div>
+  <div class="choice-row"><button class="yellowbtn" onclick="reveal('caseAnswer6')" aria-expanded="false" aria-controls="caseAnswer6">논리 판정 보기</button></div>
+  <div class="answer" id="caseAnswer6"><div><strong>판정: 영양 공급과 유전적 친자 관계의 혼동.</strong> 인간은 일부 모기에게 먹이를 제공할 수 있지만 모기의 유전적 부모가 되지는 않는다.</div><div class="explanation"><strong>사실과 비유 구분:</strong> 모기의 유전적 부모는 수컷·암컷 모기다. 혈액은 일부 모기의 난자 발달에 쓰이는 영양 공급원이지 인간 DNA가 모기 자손의 유전체로 들어가는 생식 과정이 아니다. 사람의 성숙한 적혈구에는 핵이 없지만 백혈구 등에는 DNA가 있을 수 있다. 또한 모든 모기가 인간 피를 빠는 것도 아니다.</div></div>
+  <footer>CASE FILE 06</footer>
+</section>
+<section class="slide">
+  <div class="kicker">THE QUESTION FILTER</div>
+  <h2>질문이 떠오르면<br><span class="accent">3초 안에 분류한다</span></h2>
+  <p>질문을 억지로 없애지 말고, 지금 처리할 질문인지 나중에 처리할 질문인지 결정하자.</p>
+  <div class="grid">
+    <div class="card"><h3>🟢 지금 해결</h3><p>과제 이해, 시험 범위, 공부 중 막힌 개념처럼 현재 목표에 직접 연결됨.</p></div>
+    <div class="card"><h3>🟡 메모 후 보류</h3><p>재밌지만 시험과 직접 관련 없음. 한 줄만 적고 공부가 끝난 뒤 보기.</p></div>
+    <div class="card"><h3>🔴 무한 루프 차단</h3><p>정의만 바꾸며 같은 질문이 반복되거나, 답이 나와도 새 가정을 계속 추가함.</p></div>
+    <div class="card"><h3>⏳ 현실 체크</h3><p>“이 질문을 10분 더 생각하면 시험 점수가 오를까?” 아니면 일단 보류.</p></div>
+  </div>
+  <footer>PROTOCOL 03</footer>
+</section>
+<section class="slide">
+  <div class="kicker">INTERACTIVE DECISION</div>
+  <h2>방금 떠오른 질문은<br>어느 칸에 넣을까?</h2>
+  <p>질문을 입력하고 분류 버튼을 눌러라. 이 도구는 생각을 검열하는 게 아니라 시간을 지켜주는 장치다.</p>
+  <input id="userQuestion" placeholder="예: 고양이는 자기 이름을 성으로 인식할까?" style="width:100%;max-width:780px;padding:15px 17px;border-radius:12px;border:1px solid #ffffff35;background:#080e1d;color:white;font:inherit;margin-top:8px">
+  <div class="choice-row">
+    <button onclick="classify('now')">시험과 직접 관련 있음</button>
+    <button class="yellowbtn" onclick="classify('later')">재밌지만 지금은 아님</button>
+    <button class="pinkbtn" onclick="classify('loop')">생각이 꼬리에 꼬리를 뭄</button>
+  </div>
+  <div class="answer" id="classification"></div>
+  <footer>PROTOCOL 04</footer>
+</section>
+<section class="slide">
+  <div class="kicker">EMERGENCY RESET</div>
+  <h2>뇌가 계속 새 탭을 열면<br><span class="pink">25분 동안 탭 잠금</span></h2>
+  <p>떠오른 질문은 메모장에 맡기고, 지금 할 수 있는 가장 작은 공부 행동 하나만 시작한다.</p>
+  <div class="rule"><div class="num">1</div><div><strong>질문 보관</strong><br><span class="small">궁금증을 한 문장으로 적고 닫기.</span></div></div>
+  <div class="rule"><div class="num">2</div><div><strong>작게 시작</strong><br><span class="small">문제 한 개, 개념 한 단락, 암기 카드 다섯 장 중 하나.</span></div></div>
+  <div class="rule"><div class="num">3</div><div><strong>끝나고 다시 보기</strong><br><span class="small">공부 시간 뒤에도 궁금하면 그때 마음껏 파고들기.</span></div></div>
+  <div class="timerbox"><div class="clock" id="clock">25:00</div><div><button onclick="startTimer()">공부 타이머 시작</button> <button class="secondary" onclick="pauseTimer()">일시정지</button><button class="secondary" onclick="resetTimer()">초기화</button></div></div>
+  <div class="small" id="timerStatus" style="margin-top:10px">아직 시작 전. 물 한 모금 마시고 시작!</div>
+  <footer>MISSION COMPLETE</footer>
+</section>
 </main>
-
-<nav class="navigation" aria-label="슬라이드 이동">
-  <button class="nav-btn" id="prev">◀ 이전</button>
-  <span id="indicator">1 / 4</span>
-  <button class="nav-btn" id="next">다음 ▶</button>
+<nav class="controls" aria-label="슬라이드 조작">
+  <button class="secondary" onclick="prevSlide()" aria-label="이전 슬라이드">← 이전</button>
+  <span class="counter" id="counter">01 / 10</span>
+  <button onclick="nextSlide()" aria-label="다음 슬라이드">다음 →</button>
 </nav>
-
 <script>
-(() => {
-  const slides = [...document.querySelectorAll(".slide")];
-  const indicator = document.getElementById("indicator");
-  const prev = document.getElementById("prev");
-  const next = document.getElementById("next");
-  let current = 0;
-
-  function showSlide(index) {
-    current = Math.max(0, Math.min(slides.length - 1, index));
-    slides.forEach((slide, i) => {
-      slide.classList.toggle("active", i === current);
-      slide.setAttribute("aria-hidden", String(i !== current));
-    });
-    indicator.textContent = `${current + 1} / ${slides.length}`;
-    prev.disabled = current === 0;
-    next.disabled = current === slides.length - 1;
-  }
-
-  prev.addEventListener("click", () => showSlide(current - 1));
-  next.addEventListener("click", () => showSlide(current + 1));
-
-  document.addEventListener("keydown", event => {
-    if (event.target.matches("input, textarea, select")) return;
-    if (event.key === "ArrowRight" || event.key === " ") {
-      event.preventDefault();
-      showSlide(current + 1);
-    }
-    if (event.key === "ArrowLeft") showSlide(current - 1);
-  });
-
-  showSlide(0);
-
-  const robot1 = document.getElementById("robot1");
-  const robot2 = document.getElementById("robot2");
-  const cargo = document.getElementById("cargo");
-  const start = document.getElementById("start");
-  const reset = document.getElementById("reset");
-  const status = document.getElementById("status");
-  const dot = document.getElementById("dot");
-
-  const initial = { r1: "8%", r2: "42%", cargo: "10%" };
-  let running = false;
-  let completed = false;
-  let restarting = false;
-  let sequence = 0;
-  let timer = null;
-  let restartTimer = null;
-
-  function setStatus(message, state = "") {
-    status.textContent = message;
-    dot.className = "dot" + (state ? " " + state : "");
-  }
-
-  function wait(ms, id) {
-    return new Promise(resolve => {
-      timer = setTimeout(() => {
-        timer = null;
-        resolve(id === sequence);
-      }, ms);
-    });
-  }
-
-  function resetSimulation() {
-    sequence++;
-    if (timer !== null) clearTimeout(timer);
-    if (restartTimer !== null) clearTimeout(restartTimer);
-    timer = null;
-    restartTimer = null;
-    running = false;
-    restarting = false;
-    completed = false;
-
-    // 로봇과 박스를 시작 위치로 되돌립니다.
-    robot1.style.left = initial.r1;
-    robot2.style.left = initial.r2;
-    cargo.style.left = initial.cargo;
-
-    start.disabled = false;
-    start.textContent = "▶ 이송 시작하기";
-    setStatus("대기 중: 이송을 시작할 수 있습니다.");
-  }
-
-  async function startSimulation() {
-    if (running) return;
-
-    running = true;
-    const id = ++sequence;
-    start.disabled = true;
-    start.textContent = "이송 진행 중...";
-
-    try {
-      setStatus("1단계: AMR 01이 박스를 B지점으로 운반합니다.", "running");
-      robot1.style.left = "36%";
-      cargo.style.left = "38%";
-      if (!(await wait(1900, id))) return;
-
-      setStatus("2단계: 릴레이존에서 AMR 02로 박스를 인계합니다.", "running");
-      cargo.style.left = "44%";
-      if (!(await wait(1100, id))) return;
-
-      setStatus("3단계: AMR 02가 박스를 C지점으로 운반합니다.", "running");
-      robot2.style.left = "78%";
-      cargo.style.left = "80%";
-      if (!(await wait(1900, id))) return;
-
-      running = false;
-      completed = true;
-      start.disabled = false;
-      start.textContent = "▶ 다시 이송하기";
-      setStatus("이송 완료: 박스가 C지점에 도착했습니다.", "done");
-    } catch (error) {
-      if (id === sequence) {
-        running = false;
-        start.disabled = false;
-        start.textContent = "▶ 이송 시작하기";
-        setStatus("오류가 발생했습니다. 리셋 후 다시 시도하세요.");
-        console.error(error);
-      }
-    }
-  }
-
-  function handleStartClick() {
-    if (running || restarting) return;
-
-    // 한 번 완료된 뒤 '다시 이송하기'를 누르면 우선 시작 위치로 복귀시킨 뒤 재시작합니다.
-    if (completed) {
-      resetSimulation();
-      restarting = true;
-      start.disabled = true;
-      start.textContent = "처음 위치로 복귀 중...";
-      setStatus("로봇과 박스를 시작 위치로 되돌리는 중입니다.", "running");
-
-      const returnSequence = sequence;
-      restartTimer = setTimeout(() => {
-        restartTimer = null;
-        if (returnSequence !== sequence) return; // 복귀 중 리셋을 눌렀다면 오래된 재시작을 취소
-        restarting = false;
-        start.disabled = false;
-        startSimulation();
-      }, 1850); // CSS의 위치 이동 전환 시간(1.8초) 이후 다시 시작
-      return;
-    }
-
-    startSimulation();
-  }
-
-  start.addEventListener("click", handleStartClick);
-  reset.addEventListener("click", resetSimulation);
-
-  // 페이지를 처음 열었을 때도 리셋 버튼을 누른 것과 같은 초기 상태를 적용합니다.
-  // 특히 로봇의 left 값이 auto인 상태에서 첫 이동 애니메이션이 시작되는 문제를 방지합니다.
-  resetSimulation();
-
-  // 2페이지의 움짤과 애니메이션은 페이지에 표시되는 동안 항상 보이고 재생됩니다.
-})();
+const slides=[...document.querySelectorAll('.slide')];let current=0;
+function showSlide(n){current=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,i)=>s.classList.toggle('active',i===current));document.getElementById('counter').textContent=String(current+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');document.getElementById('progress').style.width=((current+1)/slides.length*100)+'%'}
+function nextSlide(){showSlide(current+1)}function prevSlide(){showSlide(current-1)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){if(!['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName)){e.preventDefault();nextSlide()}}if(e.key==='ArrowLeft'&&!['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))prevSlide()});
+let recordCount=2;
+function addRecord(){recordCount++;const machine=document.getElementById('recordMachine');const chip=document.createElement('span');chip.className='record';chip.textContent='메타 기록 '+(recordCount-2);machine.appendChild(chip);document.getElementById('recordEquation').textContent='기록 '+recordCount+'개? → 문장을 더 만들 수는 있지만, 공식 기록이 자동 생성되진 않음';if(recordCount===8){const note=document.createElement('span');note.className='record';note.style.background='#ffd16622';note.textContent='🚨 무한 루프 감지: 기록 기준을 확인하세요';machine.appendChild(note);}}
+function resetRecords(){recordCount=2;document.getElementById('recordMachine').innerHTML='<span class="record">기존 기록 × 2</span>';document.getElementById('recordEquation').textContent='기록 2개 → “기록 2개를 가진 최초의 사람”'}
+function reveal(id){const box=document.getElementById(id);const shown=box.classList.toggle('show');const button=document.querySelector('[aria-controls="'+id+'"]');if(button)button.setAttribute('aria-expanded',String(shown))}
+function classify(type){const q=document.getElementById('userQuestion').value.trim()||'입력하지 않은 질문';const box=document.getElementById('classification');let msg='';if(type==='now')msg='🟢 <strong>지금 해결하기.</strong><br>질문: “'+escapeHTML(q)+'”<br>공부 목표와 연결되는 이유를 한 줄로 적고, 10분 안에 해결해 보자.';if(type==='later')msg='🟡 <strong>질문 보관함으로 이동.</strong><br>“'+escapeHTML(q)+'”<br>메모 완료. 시험 공부 한 세션이 끝난 뒤 다시 열어도 늦지 않다.';if(type==='loop')msg='🔴 <strong>무한 루프 차단.</strong><br>“'+escapeHTML(q)+'”<br>지금은 결론을 내릴 필요가 없다. 가정을 더 붙이지 말고 질문을 저장한 뒤 다음 문제로 이동!';box.innerHTML=msg;box.classList.add('show')}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let timerSeconds=1500,timerInterval=null;
+function paintTimer(){document.getElementById('clock').textContent=String(Math.floor(timerSeconds/60)).padStart(2,'0')+':'+String(timerSeconds%60).padStart(2,'0')}
+function startTimer(){if(timerInterval)return;document.getElementById('timerStatus').textContent='집중 중… 질문은 메모장에 맡기고 지금 할 일 하나만!';timerInterval=setInterval(()=>{if(timerSeconds>0){timerSeconds--;paintTimer()}else{clearInterval(timerInterval);timerInterval=null;document.getElementById('timerStatus').textContent='완료! 25분 집중 성공. 이제 5분 쉬어도 좋다.';alert('25분 집중 완료! 잠깐 쉬어도 좋아요.')}},1000)}
+function pauseTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;document.getElementById('timerStatus').textContent='일시정지됨. 준비되면 다시 시작하세요.'}}
+function resetTimer(){pauseTimer();timerSeconds=1500;paintTimer();document.getElementById('timerStatus').textContent='타이머 초기화 완료.'}
+showSlide(0);
 </script>
-
-<!-- Import map: STLLoader와 OrbitControls 내부의 bare specifier "three"를 해결 -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
-  }
-}
-</script>
-
-<script type="module">
-import * as THREE from "three";
-import { STLLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-(async function initBurger3D() {
-  const host = document.getElementById("burger3d");
-  const status = document.getElementById("burgerModelStatus");
-
-  function showFallback(message) {
-    if (!host) return;
-    host.innerHTML = "";
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 320 300");
-    svg.setAttribute("role", "img");
-    svg.setAttribute("aria-label", "TurtleBot Burger 개념 3D 스타일 모델");
-    svg.style.width = "100%";
-    svg.style.height = "100%";
-    const template = document.getElementById("oldBurgerSvg");
-    if (template) svg.appendChild(document.importNode(template.content, true));
-    host.appendChild(svg);
-    if (status) status.textContent = message;
-  }
-
-  try {
-    if (!host) throw new Error("3D 모델을 표시할 영역을 찾지 못했습니다.");
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#111827");
-    const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 10);
-    camera.position.set(0.34, 0.27, 0.38);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(host.clientWidth || 300, host.clientHeight || 300);
-    host.innerHTML = "";
-    host.appendChild(renderer.domElement);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.07;
-    controls.target.set(-0.025, 0.09, 0);
-    controls.minDistance = 0.22;
-    controls.maxDistance = 0.9;
-
-    scene.add(new THREE.HemisphereLight(0xeaf4ff, 0x273244, 2.0));
-    const key = new THREE.DirectionalLight(0xffffff, 2.2);
-    key.position.set(1, 2, 2);
-    scene.add(key);
-    const rim = new THREE.DirectionalLight(0x00dfa2, 0.7);
-    rim.position.set(-2, 1, -1);
-    scene.add(rim);
-
-    const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(0.23, 64),
-      new THREE.MeshStandardMaterial({ color: 0x1b293b, roughness: 0.9 })
-    );
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -0.006;
-    scene.add(floor);
-    const grid = new THREE.GridHelper(0.45, 18, 0x29405a, 0x1e3045);
-    grid.position.y = -0.004;
-    scene.add(grid);
-
-    // 공식 Gazebo 모델의 좌표계는 Z-up이고 Three.js 장면은 Y-up이다.
-    // 각 STL 지오메트리를 X축으로 -90도 회전해 좌표계를 맞춘다.
-    const robot = new THREE.Group();
-    robot.rotation.y = -0.45; // 보기 좋은 사선 방향으로만 회전
-    scene.add(robot);
-
-    const loader = new STLLoader();
-    const meshBaseUrl = "https://raw.githubusercontent.com/ROBOTIS-GIT/turtlebot3/main/turtlebot3_description/meshes/";
-    const matBase = new THREE.MeshStandardMaterial({ color: 0x8f99a5, metalness: 0.12, roughness: 0.58 });
-    const matDark = new THREE.MeshStandardMaterial({ color: 0x202833, metalness: 0.08, roughness: 0.78 });
-    const matLidar = new THREE.MeshStandardMaterial({ color: 0x343e49, metalness: 0.18, roughness: 0.45 });
-
-    async function loadStl(path, material, position) {
-      const geometry = await loader.loadAsync(meshBaseUrl + path);
-      // ROBOTIS SDF에서 이 STL 메시들은 scale="0.001 0.001 0.001"로 사용한다.
-      // STL 좌표는 mm 단위이므로 Three.js에서도 먼저 1/1000로 축소한다.
-      // 이 스케일이 빠지면 메시가 비정상적으로 커져 벽처럼 보일 수 있다.
-      geometry.scale(0.001, 0.001, 0.001);
-      geometry.rotateX(-Math.PI / 2); // ROS/Gazebo Z-up -> Three.js Y-up
-      geometry.computeVertexNormals();
-      geometry.computeBoundingSphere();
-      const mesh = new THREE.Mesh(geometry, material);
-      // Gazebo pose의 (x, y, z)를 Three.js의 (x, z, -y)로 변환
-      mesh.position.set(position[0], position[2], -position[1]);
-      robot.add(mesh);
-      return mesh;
-    }
-
-    // 위치값은 ROBOTIS 공식 TurtleBot3 Burger Gazebo 모델(model.sdf)을 따른다.
-    // 베이스 visual pose: x=-0.032, y=0, z=0 / scale=0.001
-    await loadStl("bases/burger_base.stl", matBase, [-0.032, 0, 0]);
-
-    // 공식 좌우 바퀴 pose: (0, +/-0.08, 0.023). STL 자체 방향은 보존한다.
-    for (const sideY of [0.08, -0.08]) {
-      try {
-        await loadStl("wheels/" + (sideY > 0 ? "left_tire.stl" : "right_tire.stl"), matDark, [0, sideY, 0.023]);
-      } catch (wheelError) {
-        // 공식 타이어 파일을 못 읽을 때만 원통 바퀴로 대체한다.
-        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.033, 0.018, 32), matDark);
-        wheel.rotation.x = Math.PI / 2;
-        wheel.position.set(0, 0.023, -sideY);
-        robot.add(wheel);
-        console.warn("공식 타이어 STL을 읽지 못해 단순 바퀴로 대체했습니다.", wheelError);
-      }
-    }
-
-    // 공식 LDS 라이다 STL pose: x=-0.032, y=0, z=0.171
-    try {
-      await loadStl("sensors/lds.stl", matLidar, [-0.032, 0, 0.171]);
-    } catch (lidarError) {
-      // LDS STL이 접근 불가능할 때에만 간단한 라이다 실린더를 표시한다.
-      const lidar = new THREE.Mesh(new THREE.CylinderGeometry(0.0508, 0.0508, 0.035, 48), matLidar);
-      lidar.position.set(-0.032, 0.171, 0);
-      robot.add(lidar);
-      console.warn("공식 LDS STL을 읽지 못해 단순 라이다로 대체했습니다.", lidarError);
-    }
-
-    // 후면 캐스터: 공식 모델의 위치(-0.081, 0, -0.004)를 참고한 소형 구체
-    const caster = new THREE.Mesh(new THREE.SphereGeometry(0.006, 16, 12), matDark);
-    caster.position.set(-0.081, 0.005, 0);
-    robot.add(caster);
-
-    const resize = () => {
-      const w = host.clientWidth || 300;
-      const h = host.clientHeight || 300;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    if (window.ResizeObserver) new ResizeObserver(resize).observe(host);
-    else window.addEventListener("resize", resize);
-    resize();
-
-    if (status) status.textContent = "공식 베이스·바퀴·라이다 STL 로드 완료 · mm→m 축척 적용 · 드래그 회전 / 휠 확대";
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-  } catch (err) {
-    showFallback("공식 3D 모델 로드 실패 · 대체 모델 표시 중. F12 Console에서 원인을 확인하세요.");
-    console.error("TurtleBot3 Burger 3D initialization failed:", err);
-  }
-})();
-</script>
-
 </body>
 </html>
